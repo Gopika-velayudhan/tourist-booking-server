@@ -28,11 +28,11 @@ export const sendOTP = async (req, res) => {
   }
 };
 export const verifyOTP = async (req, res) => {
-  const { Phonenumber, Code } = req.body;
+  const { Phonenumber, otp } = req.body;
   try {
     const verificationCheck = await client.verify.v2.services(serviceId).verificationChecks.create({
       to: "+91" + Phonenumber,
-      code: Code,
+      code: otp,
     });
 
     console.log("OTP verification result:", verificationCheck.status);

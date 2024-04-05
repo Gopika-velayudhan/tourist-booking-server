@@ -11,7 +11,7 @@ mongoose
   .then(() => {
     console.log("Connected to MongoDB");
   })
-  .catch((err) => {
+  .catch((err) => { 
     console.log(err);
   });
 const app = express();
