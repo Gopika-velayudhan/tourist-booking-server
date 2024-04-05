@@ -4,12 +4,16 @@ import jwt from "jsonwebtoken";
 import { sendOTP } from "../Twilio/Otp verification.js";
 import { trycatchmidddleware } from "../Middleware/trycatch.js";
 import {joiUserSchema} from "../Model/validateSchema.js";
+import { verifyOTP } from "../Twilio/Otp verification.js";
+
+
+
 
 
 
 export const userRegister = async (req, res, next) => {
   const { value, error } = joiUserSchema.validate(req.body);
-  const { Username, Email, Phonenumber, Password } = value;
+  const { Username, Email, Phonenumber, Password, OTP } = value; // Include OTP in the request body
   const existingUser = await User.findOne({ Username: Username });
 
   if (existingUser) {
@@ -20,10 +24,8 @@ export const userRegister = async (req, res, next) => {
   }
 
   try {
-  
     const hashedPassword = await bcrypt.hash(Password, 10);
-    
-    
+
     const newUser = new User({
       Username,
       Email,
@@ -31,10 +33,19 @@ export const userRegister = async (req, res, next) => {
       Password: hashedPassword,
     });
 
-    // Send OTP
-    await sendOTP(Phonenumber);
     
+    await sendOTP({ Phonenumber }); 
+
     
+    const verificationResult = await verifyOTP({ Phonenumber, OTP }); 
+
+    if (!verificationResult.success) {
+      return res.status(400).json({
+        status: "error",
+        message: "Invalid OTP",
+      });
+    }
+
     await newUser.save();
 
     res.status(201).json("User created successfully");
@@ -42,6 +53,7 @@ export const userRegister = async (req, res, next) => {
     next(error);
   }
 };
+
 
 export const userLogin = async (req, res, next) => {
   const { value, error } = joiUserSchema.validate(req.body);

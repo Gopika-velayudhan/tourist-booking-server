@@ -19,6 +19,10 @@ const userSchema = new mongoose.Schema({
         type:String,
         required:true
     },
+    OTP:{
+        type:String,
+        required:true
+    },
     cart:[
         {
             type:mongoose.Schema.ObjectId,
