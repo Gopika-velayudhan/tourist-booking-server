@@ -17,7 +17,7 @@ mongoose
 const app = express();
 app.use(express.json());
 app.use(cors());
-const port = 3002;
+const port = 3005;
 app.use("/api/user", Userrouter);
 app.use('/api/admin',router)
 
