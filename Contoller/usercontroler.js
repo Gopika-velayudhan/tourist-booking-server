@@ -3,7 +3,9 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { sendOTP } from "../Twilio/Otp verification.js";
 import { trycatchmidddleware } from "../Middleware/trycatch.js";
-import { joiUserSchema } from "../Model/validateSchema.js";
+import { joiUserSchema,joiPackageSchema } from "../Model/validateSchema.js";
+import Package from "../Model/PackageSchema.js"
+
 // import { verifyOTP } from "../Twilio/Otp verification.js";
 
 // export const otpSend = async (req, res, next) => {
@@ -163,3 +165,22 @@ export const userLogin = async (req, res, next) => {
     next(error);
   }
 };
+export const viewallpackage = async(req,res,next) =>{
+  try{
+   const product = await Package.find()
+   if(!product){
+    return next(trycatchmidddleware(404, "package  not found"));
+
+    
+   }
+   res.status(200).json({
+    status:"Success",
+    message:"successfully product fetched",
+    data:product
+   })
+  }
+  catch(error){
+    next(error)
+
+  } 
+}
