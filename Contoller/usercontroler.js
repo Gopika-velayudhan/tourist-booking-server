@@ -3,8 +3,8 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { sendOTP } from "../Twilio/Otp verification.js";
 import { trycatchmidddleware } from "../Middleware/trycatch.js";
-import { joiUserSchema,joiPackageSchema } from "../Model/validateSchema.js";
-import Package from "../Model/PackageSchema.js"
+import { joiUserSchema, joiPackageSchema } from "../Model/validateSchema.js";
+import Package from "../Model/PackageSchema.js";
 
 // import { verifyOTP } from "../Twilio/Otp verification.js";
 
@@ -79,9 +79,68 @@ import Package from "../Model/PackageSchema.js"
 //     next(error);
 //   }
 // };
+// export const userRegister = async (req, res, next) => {
+//   try {
+//     const { value, error } = joiUserSchema.validate(req.body);
+//     if (error) {
+//       return res.status(400).json({
+//         status: "error",
+//         message: error.details[0].message,
+//       });
+//     }
+
+//     const { Username, Email, Phonenumber, Password } = value;
+
+//     // checking existence
+//     const existinguser = await User.findOne({ Username: Username });
+//     if (existinguser) {
+//       res.status(400).json({
+//         status: "error",
+//         message: "username already exist",
+//       });
+//     }
+
+//     // otp sending
+
+//     try {
+//       await sendOTP(req, res);
+
+//       await newUser.save();
+//       res.status(201).json("user created successfully");
+//     } catch (error) {
+//       next(error);
+//     }
+//     // password hashing
+
+//     const hashedpassword = await bcrypt.hash(Password, 10);
+
+//     // user creation
+
+//     const userData = await User.create({
+//       Username: Username,
+//       Email: Email,
+//       Phonenumber: Phonenumber,
+//       Password: hashedpassword,
+//     });
+
+//     // success response
+//     return res.status(200).json({
+//       status: "success",
+//       message: "user registered successfully",
+//       data: userData,
+//     });
+//   } catch (error) {
+//     console.error(error);
+//     return res.status(500).json({
+//       status: "error",
+//       message: "an unexpected error occured",
+//     });
+//   }
+// };
 export const userRegister = async (req, res, next) => {
   try {
     const { value, error } = joiUserSchema.validate(req.body);
+
     if (error) {
       return res.status(400).json({
         status: "error",
@@ -91,49 +150,44 @@ export const userRegister = async (req, res, next) => {
 
     const { Username, Email, Phonenumber, Password } = value;
 
-    // checking existence
-    const existinguser = await User.findOne({ Username: Username });
-    if (existinguser) {
-      res.status(400).json({
+    // Check username already exists
+    const existingUser = await User.findOne({ Username: Username });
+    if (existingUser) {
+      return res.status(400).json({
         status: "error",
-        message: "username already exist",
+        message: "Username already taken!",
       });
     }
 
-    // otp sending
-
+    // Send OTP
     try {
       await sendOTP(req, res);
-
-      await newUser.save();
-      res.status(201).json("user created successfully");
     } catch (error) {
-      next(error);
+      return next(error);
     }
-    // password hashing
 
-    const hashedpassword = await bcrypt.hash(Password, 10);
+    //Hash password
+    const hashedPassword = await bcrypt.hash(Password, 10);
 
-    // user creation
-
-    const userData = await User.create({
+    const newUser = new User({
       Username: Username,
       Email: Email,
       Phonenumber: Phonenumber,
-      Password: hashedpassword,
+      Password: hashedPassword,
     });
 
-    // success response
-    return res.status(200).json({
+    // Save new user to database
+    await newUser.save();
+
+    return res.status(201).json({
       status: "success",
-      message: "user registered successfully",
-      data: userData,
+      message: "User registered successfully",
     });
   } catch (error) {
     console.error(error);
     return res.status(500).json({
       status: "error",
-      message: "an unexpected error occured",
+      message: "An unexpected error occurred",
     });
   }
 };
@@ -165,22 +219,18 @@ export const userLogin = async (req, res, next) => {
     next(error);
   }
 };
-export const viewallpackage = async(req,res,next) =>{
-  try{
-   const product = await Package.find()
-   if(!product){
-    return next(trycatchmidddleware(404, "package  not found"));
-
-    
-   }
-   res.status(200).json({
-    status:"Success",
-    message:"successfully product fetched",
-    data:product
-   })
+export const viewallpackage = async (req, res, next) => {
+  try {
+    const product = await Package.find();
+    if (!product) {
+      return next(trycatchmidddleware(404, "package  not found"));
+    }
+    res.status(200).json({
+      status: "Success",
+      message: "successfully product fetched",
+      data: product,
+    });
+  } catch (error) {
+    next(error);
   }
-  catch(error){
-    next(error)
-
-  } 
-}
+};
