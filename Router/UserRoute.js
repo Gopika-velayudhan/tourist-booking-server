@@ -1,14 +1,16 @@
 import express from "express";
 const Userrouter = express.Router();
-import { userRegister } from "../Contoller/usercontroler.js";
-import { sendOTP } from "../Twilio/Otp verification.js";
-import {  verifyOTP} from "../Twilio/Otp verification.js";
-import { userLogin } from "../Contoller/usercontroler.js";
+import { userRegister, userLogin,viewallpackage,categoryPackageView } from "../Contoller/usercontroler.js";
+import { sendOTP,verifyOTP } from "../Twilio/Otp verification.js";
+
 
 Userrouter
   .post("/sendotp", sendOTP)
   .post("/verifyotp",verifyOTP)
   .post("/userRegister", userRegister)
-  .post("/login", userLogin);
+  .post("/login", userLogin)
+  .get("/viewallpackage",viewallpackage)
+  .get("/category",categoryPackageView)
+
 
 export default Userrouter;

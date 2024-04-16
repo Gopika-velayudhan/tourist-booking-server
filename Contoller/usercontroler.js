@@ -6,137 +6,8 @@ import { trycatchmidddleware } from "../Middleware/trycatch.js";
 import { joiUserSchema, joiPackageSchema } from "../Model/validateSchema.js";
 import Package from "../Model/PackageSchema.js";
 
-// import { verifyOTP } from "../Twilio/Otp verification.js";
 
-// export const otpSend = async (req, res, next) => {
 
-//   try {
-
-//   const { value, error } = joiUserSchema.validate(req.body);
-//   const { Username, Email, Phonenumber, Password } = value;
-//   const existingUser = await User.findOne({ Username: Username });
-
-//   if (existingUser) {
-//     return res.status(400).json({
-//       status: "error",
-//       message: "User with this name already exists",
-//     });
-//   }
-
-//       const otpSend=await sendOTP(Phonenumber)
-//       if(otpSend.success==true){
-
-//         res.status(200).json({ success: true, message: "OTP request sent successfully" });
-//       }
-
-//     } catch (error) {
-//       // if(error){
-//       //   return res.status(500).json({ success: false, message: "something went wrong " });
-//       // }
-//       next(error);
-//     }
-
-// };
-
-// export const userRegister = async (req, res, next) => {
-//   const { value, error } = joiUserSchema.validate(req.body);
-
-//   const { Username, Email, Phonenumber, Password, otp } = value;
-//   const hashedPassword = await bcrypt.hash(Password, 10);
-//   // add otp in joy like otp:Joi.number()
-//   console.log(req.body,"sdfghjk");
-//   try {
-//     const otpVerify = await verifyOTP(Phonenumber, otp);
-
-//     if (otpVerify && otpVerify.success == true) {
-//       console.log("hi");
-
-//       console.log("hi2");
-//       const newUser = new User({
-//         Username: Username,
-//         Email: Email,
-//         Phonenumber: Phonenumber,
-//         Password: hashedPassword,
-//       });
-//       await newUser.save();
-//       console.log("hi3");
-//       return res.status(201).json({
-//         success: true,
-//         message: "user created successfully",
-//       });
-//     }
-
-//    else if (otpVerify && otpVerify.success == false) {
-//       return res.status(403).json({
-//         message: "invalid OTP",
-//       });
-//     }
-//     else {
-//           console.log("hy");
-//     }
-//   } catch (error) {
-//     // Handle errors here
-//     next(error);
-//   }
-// };
-// export const userRegister = async (req, res, next) => {
-//   try {
-//     const { value, error } = joiUserSchema.validate(req.body);
-//     if (error) {
-//       return res.status(400).json({
-//         status: "error",
-//         message: error.details[0].message,
-//       });
-//     }
-
-//     const { Username, Email, Phonenumber, Password } = value;
-
-//     // checking existence
-//     const existinguser = await User.findOne({ Username: Username });
-//     if (existinguser) {
-//       res.status(400).json({
-//         status: "error",
-//         message: "username already exist",
-//       });
-//     }
-
-//     // otp sending
-
-//     try {
-//       await sendOTP(req, res);
-
-//       await newUser.save();
-//       res.status(201).json("user created successfully");
-//     } catch (error) {
-//       next(error);
-//     }
-//     // password hashing
-
-//     const hashedpassword = await bcrypt.hash(Password, 10);
-
-//     // user creation
-
-//     const userData = await User.create({
-//       Username: Username,
-//       Email: Email,
-//       Phonenumber: Phonenumber,
-//       Password: hashedpassword,
-//     });
-
-//     // success response
-//     return res.status(200).json({
-//       status: "success",
-//       message: "user registered successfully",
-//       data: userData,
-//     });
-//   } catch (error) {
-//     console.error(error);
-//     return res.status(500).json({
-//       status: "error",
-//       message: "an unexpected error occured",
-//     });
-//   }
-// };
 export const userRegister = async (req, res, next) => {
   try {
     const { value, error } = joiUserSchema.validate(req.body);
@@ -150,7 +21,7 @@ export const userRegister = async (req, res, next) => {
 
     const { Username, Email, Phonenumber, Password } = value;
 
-    // Check username already exists
+    
     const existingUser = await User.findOne({ Username: Username });
     if (existingUser) {
       return res.status(400).json({
@@ -219,6 +90,9 @@ export const userLogin = async (req, res, next) => {
     next(error);
   }
 };
+export const userProfile = async (req,res,next)=>{
+    
+}
 export const viewallpackage = async (req, res, next) => {
   try {
     const product = await Package.find();
@@ -234,3 +108,31 @@ export const viewallpackage = async (req, res, next) => {
     next(error);
   }
 };
+
+
+
+export const categoryPackageView = async (req, res,next) => {
+  const { category } = req.body;
+
+  try {
+    
+    const packages = await Package.find({ Category: category });
+
+    if (!packages || packages.length === 0) {
+      return next(trycatchmidddleware(404,"package not found"))
+    }
+
+    res.status(200).json({
+      status: "success",
+      message: "Packages retrieved successfully",
+      data: packages,
+    });
+  } catch (error) {
+    console.error("Error fetching packages:", error);
+    next(error)
+   
+    };
+  }
+
+
+
