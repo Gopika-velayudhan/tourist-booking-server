@@ -57,13 +57,21 @@ export const getUserById = async (req, res, next) => {
 
 export const createPackage = async (req, res, next) => {
   const { value, error } = joiPackageSchema.validate(req.body);
-  const { Destination, Duration, Price, Available_Date, Image, Description } =
-    value;
+  const {
+    Destination,
+    Duration,
+    Category,
+    Price,
+    Available_Date,
+    Image,
+    Description,
+  } = value;
 
   try {
     const newProduct = new Package({
       Destination,
       Duration,
+      Category,
       Price,
       Available_Date,
       Image,
@@ -76,5 +84,6 @@ export const createPackage = async (req, res, next) => {
     });
   } catch (error) {
     next(error);
+    
   }
 };

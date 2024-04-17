@@ -9,7 +9,7 @@ const packageSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
-  Catagory:{
+  Category:{
     type:String,
     required:true
   },

@@ -10,6 +10,7 @@ export const joiUserSchema = Joi.object({
 export const joiPackageSchema = Joi.object({
   Destination: Joi.string(),
   Duration: Joi.number(),
+  Caegory:Joi.string(),
   Price: Joi.number(),
   Available_Date: Joi.array().items(
     Joi.object({

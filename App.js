@@ -7,7 +7,7 @@ import router from "./Router/AdminRoute.js";
 
 dotenv.config();
 mongoose
-  .connect(process.env.mongodb)
+  .connect(process.env.MONGO)
   .then(() => {
     console.log("Connected to MongoDB");
   })
