@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { sendOTP } from "../Twilio/Otp verification.js";
 import { trycatchmidddleware } from "../Middleware/trycatch.js";
-import { joiUserSchema, joiPackageSchema } from "../Model/validateSchema.js";
+import { joiUserSchema } from "../Model/validateSchema.js";
 import Package from "../Model/PackageSchema.js";
 
 
@@ -46,9 +46,10 @@ export const userRegister = async (req, res, next) => {
       Phonenumber: Phonenumber,
       Password: hashedPassword,
     });
+    console.log(newUser)
 
-    // Save new user to database
-    await newUser.save();
+    
+    await newUser.save()
 
     return res.status(201).json({
       status: "success",

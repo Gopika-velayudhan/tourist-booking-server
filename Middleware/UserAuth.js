@@ -1,4 +1,4 @@
-import { Jwt } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 
 const verifyToken = (req, res, next) => {
     const token = req.headers["authorization"];
@@ -7,12 +7,13 @@ const verifyToken = (req, res, next) => {
         return res.status(403).json({ error: "No token provided" });
     }
 
-    jwt.verify(token, process.env.USER_ACCESS_TOKEN_SECRT, (err, decoded) => {
+    jwt.verify(token, process.env.USER_ACCESS_TOKEN_SECRET, (err, decoded) => {
         if (err) {
             return res.status(401).json({ error: "Unauthorized" });
         }
-        req.Email = decoded.Email;
+        req.email = decoded.email;
         next();
     });
 };
-export default verifyToken
+
+export default verifyToken;
