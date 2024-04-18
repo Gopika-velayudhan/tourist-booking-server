@@ -3,15 +3,15 @@ import mongoose from "mongoose";
 const packageSchema = new mongoose.Schema({
   Destination: {
     type: String,
-    required: true,
+    
   },
   Duration: {
     type: Number,
-    required: true,
+    
   },
-  Category:{
-    type:String,
-    required:true
+  Category: {
+    type: String,
+    
   },
   Price: {
     type: Number,
@@ -37,6 +37,6 @@ const packageSchema = new mongoose.Schema({
   Description: {
     type: String,
   },
-},{timestamps:true});
+}, { timestamps: true });
 
 export default mongoose.model("Package", packageSchema);

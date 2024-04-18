@@ -7,6 +7,7 @@ import { trycatchmidddleware } from "../Middleware/trycatch.js";
 
 export const adminLogin = async (req, res) => {
   const { Email, Password } = req.body;
+  console.log(req.body);
   try {
     if (
       Email === process.env.ADMIN_EMAIL &&
@@ -57,6 +58,10 @@ export const getUserById = async (req, res, next) => {
 
 export const createPackage = async (req, res, next) => {
   const { value, error } = joiPackageSchema.validate(req.body);
+  if (error) {
+    return next(trycatchmidddleware(400,"error in validation",error.details[0].message))
+  }
+
   const {
     Destination,
     Duration,
@@ -66,9 +71,9 @@ export const createPackage = async (req, res, next) => {
     Image,
     Description,
   } = value;
-
+  console.log(value);
   try {
-    const newProduct = new Package({
+    await Package.create({
       Destination,
       Duration,
       Category,
@@ -77,13 +82,11 @@ export const createPackage = async (req, res, next) => {
       Image,
       Description,
     });
-    await newProduct.save();
     res.status(201).json({
       status: "Success",
       message: "successfully created product",
     });
   } catch (error) {
     next(error);
-    
   }
 };
