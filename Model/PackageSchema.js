@@ -1,3 +1,4 @@
+
 import mongoose from "mongoose";
 
 const packageSchema = new mongoose.Schema({
@@ -37,6 +38,7 @@ const packageSchema = new mongoose.Schema({
   Description: {
     type: String,
   },
+
 }, { timestamps: true });
 
 export default mongoose.model("Package", packageSchema);

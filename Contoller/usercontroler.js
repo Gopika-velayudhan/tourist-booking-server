@@ -134,6 +134,7 @@ export const categoryPackageView = async (req, res,next) => {
    
     };
   }
+  
 
 
 

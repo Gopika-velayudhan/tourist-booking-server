@@ -4,11 +4,11 @@ import { adminLogin,allUser, getUserById,createPackage,} from '../Contoller/Admi
 import verifytoken1 from '../Middleware/Adminauth.js'
 
 router
-.post("/adminlogin",adminLogin)
+.post("/admin_login",adminLogin)
 .use(verifytoken1)
 .get("/alluser",allUser)
-.get("/getuserbyid/:id",getUserById)
-.post("/createPackage", createPackage)
+.get("/users/:id",getUserById)
+.post("/Package", createPackage)
 
 
 

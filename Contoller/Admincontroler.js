@@ -57,36 +57,23 @@ export const getUserById = async (req, res, next) => {
 };
 
 export const createPackage = async (req, res, next) => {
-  const { value, error } = joiPackageSchema.validate(req.body);
+  const { error, value } = joiPackageSchema.validate(req.body);
+
   if (error) {
-    return next(trycatchmidddleware(400,"error in validation",error.details[0].message))
+    console.error('Validation error:', error.details);
+    return next(trycatchmidddleware(400, "Error in validation", error.details[0].message));
   }
 
-  const {
-    Destination,
-    Duration,
-    Category,
-    Price,
-    Available_Date,
-    Image,
-    Description,
-  } = value;
-  console.log(value);
   try {
-    await Package.create({
-      Destination,
-      Duration,
-      Category,
-      Price,
-      Available_Date,
-      Image,
-      Description,
-    });
+    const newPackage = await Package.create(value);
+    console.log('New package created:', newPackage);
     res.status(201).json({
       status: "Success",
-      message: "successfully created product",
+      message: "Package created successfully",
+      data: newPackage,
     });
   } catch (error) {
+    console.error('Error creating package:', error);
     next(error);
   }
 };
