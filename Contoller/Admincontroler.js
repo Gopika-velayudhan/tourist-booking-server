@@ -61,28 +61,14 @@ export const getUserById = async (req, res, next) => {
 };
 export const createPackage = async (req, res, next) => {
   const { value, error } = await joiPackageSchema.validate(req.body);
-  console.log(req.body, "yuiyuy");
-  const {
-    Destination,
-    Duration,
-    Category,
-    Price,
-    Available_Date,
-    Image,
-    Description,
-  } = value;
-  console.log(value);
+  
+  
+  
   if (error) {
     return next(trycatchmidddleware(400, error.message));
   } else {
     await Package.create({
-      Destination,
-      Duration,
-      Category,
-      Price,
-      Available_Date,
-      Image,
-      Description,
+     ...value
     });
     res.status(200).json({
       status: "Success",

@@ -35,7 +35,7 @@ const imageUpload = (req, res, next) => {
 
     try {
       const result = await cloudinary.uploader.upload(req.file.path, {
-        folder: "FoodFleet-imgs",
+        folder: "clone-imgs",
       });
 
       req.body.image = result.secure_url;

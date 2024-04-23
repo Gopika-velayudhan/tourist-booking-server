@@ -14,6 +14,7 @@ export const joiPackageSchema = Joi.object({
   Category: Joi.string(),
   Price: Joi.number(),
   Available_Date: Joi.date(), 
-  Image: Joi.string(), 
+  image: Joi.string(),
+
   Description: Joi.string()
 });

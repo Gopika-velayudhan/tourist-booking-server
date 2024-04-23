@@ -94,9 +94,9 @@ export const userLogin = async (req, res, next) => {
     next(error);
   }
 };
-export const userProfile = async (req,res,next)=>{
+
     
-}
+
 export const viewallpackage = async (req, res, next) => {
   try {
     const product = await Package.find();
