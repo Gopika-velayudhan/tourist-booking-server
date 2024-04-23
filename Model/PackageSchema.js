@@ -2,43 +2,17 @@
 import mongoose from "mongoose";
 
 const packageSchema = new mongoose.Schema({
-  Destination: {
-    type: String,
-    
-  },
-  Duration: {
-    type: Number,
-    
-  },
-  Category: {
-    type: String,
-    
-  },
-  Price: {
-    type: Number,
-  },
-  Available_Date: {
-    type: [
-      {
-        date: {
-          type: Date,
-          required: true,
-        },
-        slots: {
-          type: [Number],
-          required: true,
-        },
-      },
-    ],
-    required: true,
-  },
-  Image: {
-    type: String,
-  },
-  Description: {
-    type: String,
-  },
 
-}, { timestamps: true });
+  Destination:String,
+  Duration:Number,
+  Category:String,
+  Price:Number,
+  Available_Date:Date,
+  Image:String,
+  Description:String
+
+
+
+},{timestamps:true})
 
 export default mongoose.model("Package", packageSchema);

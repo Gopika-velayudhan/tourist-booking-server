@@ -16,7 +16,8 @@ mongoose
     console.log(err);
   });
 const app = express();
-app.use(express.json());
+app.use(express.json()); 
+app.use(express.urlencoded({ extended: true })); 
 app.use(cors());
 app.use(bodyParser.json())
 const port = 3005;

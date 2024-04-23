@@ -1,36 +1,40 @@
 import Package from "../Model/PackageSchema.js";
 import User from "../Model/UserSchema.js";
 import Jwt from "jsonwebtoken";
-import { joiPackageSchema } from "../Model/validateSchema.js";
 
 import { trycatchmidddleware } from "../Middleware/trycatch.js";
+import { joiPackageSchema } from "../Model/validateSchema.js";
 
-export const adminLogin = async (req, res) => {
-  const { Email, Password } = req.body;
+export const adminLogin = async (req, res, next) => {
+  const { email, password } = req.body;
   console.log(req.body);
   try {
     if (
-      Email === process.env.ADMIN_EMAIL &&
-      Password === process.env.ADMIN_PASSWORD
+      email === process.env.ADMIN_EMAIL &&
+      password === process.env.ADMIN_PASSWORD
     ) {
       const token = Jwt.sign(
-        { Email: Email },
+        { email: email },
         process.env.ADMIN_ACCESS_TOKEN_SECRT
       );
       return res.status(200).send({
         status: "Success",
-        mesage: "Admin Login Successful",
+        message: "Admin Login Successful",
         data: token,
       });
     } else {
-      return next(trycatchmidddleware(404, "admin not found"));
+      return res.status(404).send({
+        status: "Failed",
+        message: "Admin not found",
+        success: false,
+      });
     }
   } catch (error) {
     next(error);
   }
 };
 
-export const allUser = async (req, res) => {
+export const allUser = async (req, res,next) => {
   const allUser = await User.find();
   if (allUser.length === 0) {
     return next(trycatchmidddleware(404, "user not found"));
@@ -55,25 +59,34 @@ export const getUserById = async (req, res, next) => {
     data: user,
   });
 };
-
 export const createPackage = async (req, res, next) => {
-  const { error, value } = joiPackageSchema.validate(req.body);
-
+  const { value, error } = await joiPackageSchema.validate(req.body);
+  console.log(req.body, "yuiyuy");
+  const {
+    Destination,
+    Duration,
+    Category,
+    Price,
+    Available_Date,
+    Image,
+    Description,
+  } = value;
+  console.log(value);
   if (error) {
-    console.error('Validation error:', error.details);
-    return next(trycatchmidddleware(400, "Error in validation", error.details[0].message));
-  }
-
-  try {
-    const newPackage = await Package.create(value);
-    console.log('New package created:', newPackage);
-    res.status(201).json({
-      status: "Success",
-      message: "Package created successfully",
-      data: newPackage,
+    return next(trycatchmidddleware(400, error.message));
+  } else {
+    await Package.create({
+      Destination,
+      Duration,
+      Category,
+      Price,
+      Available_Date,
+      Image,
+      Description,
     });
-  } catch (error) {
-    console.error('Error creating package:', error);
-    next(error);
+    res.status(200).json({
+      status: "Success",
+      message: "package created successfully",
+    });
   }
 };

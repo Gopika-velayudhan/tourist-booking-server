@@ -19,7 +19,9 @@ export const userRegister = async (req, res, next) => {
       });
     }
 
-    const { Username, Email, Phonenumber, Password } = value;
+    const { Username, email, Phonenumber, password } = value;
+
+    console.log(email);
 
     
     const existingUser = await User.findOne({ Username: Username });
@@ -38,11 +40,11 @@ export const userRegister = async (req, res, next) => {
     }
 
     //Hash password
-    const hashedPassword = await bcrypt.hash(Password, 10);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = new User({
       Username: Username,
-      Email: Email,
+      email: email,
       Phonenumber: Phonenumber,
       Password: hashedPassword,
     });
@@ -71,14 +73,15 @@ export const userLogin = async (req, res, next) => {
     res.json(error.message);
   }
 
-  const { Email, Password } = value;
+  const { email, password } = value;
   try {
-    const validUser = await User.findOne({ Email });
+    const validUser = await User.findOne({ email });
+    console.log(email);
 
     if (!validUser) {
       return next(trycatchmidddleware(404, "User not found"));
     }
-    const validPassword = await bcrypt.compare(Password, validUser.Password);
+    const validPassword = await bcrypt.compare(password, validUser.password);
     if (!validPassword) {
       return next(trycatchmidddleware(401, "Incorrect password"));
     }
@@ -135,6 +138,3 @@ export const categoryPackageView = async (req, res,next) => {
     };
   }
   
-
-
-
