@@ -1,6 +1,6 @@
 import express from 'express'
 const router = express()
-import { adminLogin,allUser, getUserById,createPackage,} from '../Contoller/Admincontroler.js'
+import { adminLogin,allUser, getUserById,createPackacge,viewallpackage,updatepackage} from '../Contoller/Admincontroler.js'
 import verifytoken1 from '../Middleware/Adminauth.js'
 import imageUpload from '../ImageUpload/Imageupload.js'
 
@@ -9,7 +9,9 @@ router
 .use(verifytoken1)
 .get("/users",allUser)
 .get("/users/:id",getUserById)
-.post("/packages", imageUpload,createPackage)
+.post("/packages", imageUpload,createPackacge)
+.get("/packages",viewallpackage)
+.put("/packages/:id",updatepackage)
 
 
 

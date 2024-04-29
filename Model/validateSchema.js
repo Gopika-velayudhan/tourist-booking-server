@@ -8,13 +8,16 @@ export const joiUserSchema = Joi.object({
   otp: Joi.string(),
 });
 
-export const joiPackageSchema = Joi.object({
-  Destination: Joi.string(),
-  Duration: Joi.number(),
-  Category: Joi.string(),
-  Price: Joi.number(),
-  Available_Date: Joi.date(), 
-  image: Joi.string(),
 
-  Description: Joi.string()
+
+export const joiPackageSchema = Joi.object({
+  Destination: Joi.string().required(),
+  Duration: Joi.number().required(),
+  Category: Joi.string().required(),
+  Price: Joi.number().required(),
+  Available_Date: Joi.date().required(),
+    
+  image: Joi.string().required(),
+  Description: Joi.string().required(),
 });
+

@@ -24,7 +24,6 @@ cloudinary.config({
   api_key: process.env.Api_Key,
   api_secret: process.env.Api_Secret,
 });
-
 const imageUpload = (req, res, next) => {
   upload.single("image")(req, res, async (err) => {
     if (err) {
@@ -38,20 +37,25 @@ const imageUpload = (req, res, next) => {
         folder: "clone-imgs",
       });
 
+      if (!result || !result.secure_url) {
+        throw new Error("Upload to Cloudinary failed");
+      }
+
       req.body.image = result.secure_url;
 
-      fs.unlink(req.file.path, (unlinker) => {
-        if (unlinker) {
-          console.log("error deleting local files", unlinker);
+      fs.unlink(req.file.path, (unlinkerError) => {
+        if (unlinkerError) {
+          console.log("Error deleting local files", unlinkerError);
         }
       });
+
       next();
     } catch (error) {
+      console.error("Error uploading file to Cloudinary:", error);
       return res.status(500).json({
-        message: "error uploading file to cloudinary",
+        message: "Error uploading file to Cloudinary",
       });
     }
   });
 };
-
-export default imageUpload;
+export default imageUpload
