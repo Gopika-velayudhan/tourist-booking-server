@@ -1,11 +1,14 @@
 import jwt from "jsonwebtoken";
+import dotenv from 'dotenv'
+dotenv.config()
 
 const verifyToken = (req, res, next) => {
-    const token = req.headers["authorization"];
-
-    if (!token) {
-        return res.status(403).json({ error: "No token provided" });
+    const authHeader= req.headers["authorization"];
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(403).json({ error: "No bearer token provided" });
     }
+
+    const token = authHeader.split(' ')[1];
 
     jwt.verify(token, process.env.USER_ACCESS_TOKEN_SECRET, (err, decoded) => {
         if (err) {
@@ -17,3 +20,6 @@ const verifyToken = (req, res, next) => {
 };
 
 export default verifyToken;
+
+
+

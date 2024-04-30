@@ -98,27 +98,44 @@ export const userLogin = async (req, res, next) => {
 
     
 
-export const viewallpackage = async (req, res, next) => {
-  try {
+// export const viewallpackage = async (req, res, next) => {
+//   try {
     
-    const { category } = req.query;
+//     const { category } = req.query;
 
     
-    const query = category ? { category } : {};
+//     const query = category ? { category } : {};
 
   
-    const products = await Package.find(query);
+//     const products = await Package.find(query);
 
-    if (!products || products.length === 0) {
-      return next(trycatchmidddleware(404, "Packages not found for the specified category"));
+//     if (!products || products.length === 0) {
+//       return next(trycatchmidddleware(404, "Packages not found for the specified category"));
+//     }
+
+//     res.status(200).json({
+//       status: "Success",
+//       message: "Successfully fetched products",
+//       data: products,
+//     });
+//   } catch (error) {
+//     next(error);
+//   }
+// };
+
+export const viewallpackage = async (req, res, next) => {
+  try {
+    const packages = await Package.find();
+    if (packages) {
+      res.status(200).json({
+        status: "Success",
+        message: "successfully package fetched",
+        data: packages,
+      });
+    } else {
+      next(trycatchmidddleware(404, "package not found"));
     }
-
-    res.status(200).json({
-      status: "Success",
-      message: "Successfully fetched products",
-      data: products,
-    });
-  } catch (error) {
-    next(error);
+  } catch (err) {
+    next(err);
   }
 };
