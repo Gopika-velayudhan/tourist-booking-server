@@ -37,6 +37,8 @@ export const adminLogin = async (req, res, next) => {
 export const allUser = async (req, res, next) => {
   try {
     const allUser = await User.find();
+    const allUserCount = await User.countDocuments()
+
     if (allUser.length === 0) {
       return next(trycatchmidddleware(404, "user not found"));
     } else {
@@ -45,6 +47,7 @@ export const allUser = async (req, res, next) => {
         message: "successfully fetched all user",
 
         data: allUser,
+        dataCount: allUserCount
       });
     }
   } catch (err) {
@@ -68,7 +71,6 @@ export const getUserById = async (req, res, next) => {
   }
 };
 export const createPackacge = async (req, res, next) => {
-  
   const { value, error } = joiPackageSchema.validate(req.body);
   if (error) {
     next(trycatchmidddleware(400, error.message));
@@ -96,6 +98,7 @@ export const viewallpackage = async (req, res, next) => {
         data: packages,
       });
     } else {
+      a;
       next(trycatchmidddleware(404, "package not found"));
     }
   } catch (err) {
@@ -105,32 +108,29 @@ export const viewallpackage = async (req, res, next) => {
 export const updatepackage = async (req, res, next) => {
   try {
     const { value, error } = joiPackageSchema.validate(req.body);
-    
     if (error) {
-      next(trycatchmidddleware(400, error.message));
+      next(errorHandler(400, error.message));
     }
 
-    const { id } = req.params;
-    console.log("upading id :", id);
-    console.log(req.params, "request");
+    const { _id } = req.params;
 
-    const updatePackage = await Package.findByIdAndUpdate(
-      id,
+    const upadedpackages = await Package.findOneAndUpdate(
+      _id,
       { $set: { ...value } },
       { new: true }
     );
 
-    if (updatePackage) {
+    if (upadedpackages) {
       return res.status(200).json({
         status: "success",
         message: "Successfully updated data",
-        data: updatePackage,
+        data: upadedpackages,
       });
     } else {
-      return next(trycatchmidddleware(404, "Package not found"));
+      return next(trycatchmidddleware(404, "Property not found"));
     }
-  } catch (err) {
-    return next(err);
+  } catch (error) {
+    return next(error);
   }
 };
 export const deletepackage = async (req, res, next) => {
