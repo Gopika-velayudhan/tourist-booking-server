@@ -72,6 +72,7 @@ export const getUserById = async (req, res, next) => {
 };
 export const createPackacge = async (req, res, next) => {
   const { value, error } = joiPackageSchema.validate(req.body);
+  console.log(req.body,"dfghjk");
   if (error) {
     next(trycatchmidddleware(400, error.message));
   }
@@ -105,34 +106,54 @@ export const viewallpackage = async (req, res, next) => {
     next(err);
   }
 };
+export const SinglePackage = async(req,res,next)=>{
+    const packageid = req.params.id
+
+    try{
+      const pack = await Package.findById(packageid)
+      if(pack){
+        return res.status(200).json({
+          status:"success",
+          message:"successfyllt fetched single package",
+          data:pack
+        })
+        
+      }
+      return next(trycatchmidddleware(404,"package not found"))
+    }catch(err){
+      next(err)
+    }
+   
+}
 export const updatepackage = async (req, res, next) => {
   try {
     const { value, error } = joiPackageSchema.validate(req.body);
     if (error) {
-      next(errorHandler(400, error.message));
+      return res.status(400).json({ message: error.message });
     }
 
     const { _id } = req.params;
 
-    const upadedpackages = await Package.findOneAndUpdate(
-      _id,
+    const updatedPackage = await Package.findOneAndUpdate(
+      { _id }, 
       { $set: { ...value } },
       { new: true }
     );
 
-    if (upadedpackages) {
+    if (updatedPackage) {
       return res.status(200).json({
         status: "success",
         message: "Successfully updated data",
-        data: upadedpackages,
+        data: updatedPackage,
       });
     } else {
-      return next(trycatchmidddleware(404, "Property not found"));
+      return res.status(404).json({ message: "Property not found" });
     }
   } catch (error) {
     return next(error);
   }
 };
+
 export const deletepackage = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -145,6 +166,52 @@ export const deletepackage = async (req, res, next) => {
     res
       .status(200)
       .json({ message: "Package deleted successfully", deletedPackage });
+  } catch (err) {
+    next(err);
+  }
+};
+
+
+
+export const blockUser = async (req, res, next) => {
+  try {
+    const userId = req.params.id; 
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (user.isBlocked) {
+      return res.status(400).json({ message: "User is already blocked" });
+    }
+
+    user.isBlocked = true;
+    await user.save();
+
+    res.status(200).json({ message: "User blocked successfully", user });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const unblockuser = async (req, res, next) => {
+  try {
+    const userId = req.params.id;
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (!user.isBlocked) {
+      return res.status(400).json({ message: "User is not blocked" });
+    }
+
+    user.isBlocked = false;
+    await user.save();
+
+    res.status(200).json({ message: "User unblocked successfully", user });
   } catch (err) {
     next(err);
   }

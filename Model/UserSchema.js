@@ -35,6 +35,15 @@ const userSchema = new mongoose.Schema({
             type:mongoose.Schema.ObjectId,
             ref:"Package"
         }
-    ]
+    ],
+    isActive:{
+        type:Boolean,
+        default:true
+        
+    },
+    isBlocked :{
+        type:Boolean,
+        default:false
+    }
 },{ timestamps: true })
 export default mongoose.model("user",userSchema)

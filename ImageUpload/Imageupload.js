@@ -25,7 +25,7 @@ cloudinary.config({
   api_secret: process.env.Api_Secret,
 });
 const imageUpload = (req, res, next) => {
-  upload.single("image")(req, res, async (err) => {
+  upload.array("images")(req, res, async (err) => {
     if (err) {
       return res.status(400).json({
         error: err.message,

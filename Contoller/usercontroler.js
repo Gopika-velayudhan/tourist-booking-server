@@ -81,6 +81,12 @@ export const userLogin = async (req, res, next) => {
     if (!validUser) {
       return next(trycatchmidddleware(404, "User not found"));
     }
+    if(validUser.isBlocked){
+      return res.status(403).json({
+        status:"error",
+        message:"user is blocked"
+      })
+    }
     const validPassword = await bcrypt.compare(password, validUser.password);
     if (!validPassword) {
       return next(trycatchmidddleware(401, "Incorrect password"));

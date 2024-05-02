@@ -23,10 +23,10 @@ const PackageSchema = new mongoose.Schema({
     required: true
       
   },
-  image: {
+  images: [{
     type: String,
     required: true,
-  },
+   }],
   Description: {
     type: String,
     required: true,
