@@ -24,8 +24,9 @@ cloudinary.config({
   api_key: process.env.Api_Key,
   api_secret: process.env.Api_Secret,
 });
-const imageUpload = (req, res, next) => {
-  upload.array("images")(req, res, async (err) => {
+
+const multipleImageUpload = (req, res, next) => {
+  upload.array("images", 10)(req, res, async (err) => { 
     if (err) {
       return res.status(400).json({
         error: err.message,
@@ -33,21 +34,26 @@ const imageUpload = (req, res, next) => {
     }
 
     try {
-      const result = await cloudinary.uploader.upload(req.file.path, {
-        folder: "clone-imgs",
-      });
+      const promises = req.files.map(async (file) => {
+        const result = await cloudinary.uploader.upload(file.path, {
+          folder: "clone-imgs",
+        });
 
-      if (!result || !result.secure_url) {
-        throw new Error("Upload to Cloudinary failed");
-      }
-
-      req.body.image = result.secure_url;
-
-      fs.unlink(req.file.path, (unlinkerError) => {
-        if (unlinkerError) {
-          console.log("Error deleting local files", unlinkerError);
+        if (!result || !result.secure_url) {
+          throw new Error("Upload to Cloudinary failed");
         }
+
+        fs.unlink(file.path, (unlinkerError) => {
+          if (unlinkerError) {
+            console.log("Error deleting local files", unlinkerError);
+          }
+        });
+
+        return result.secure_url;
       });
+
+      const uploadedImages = await Promise.all(promises);
+      req.body.images = uploadedImages;
 
       next();
     } catch (error) {
@@ -58,4 +64,5 @@ const imageUpload = (req, res, next) => {
     }
   });
 };
-export default imageUpload
+
+export default multipleImageUpload;

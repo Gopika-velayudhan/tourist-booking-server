@@ -72,7 +72,7 @@ export const getUserById = async (req, res, next) => {
 };
 export const createPackacge = async (req, res, next) => {
   const { value, error } = joiPackageSchema.validate(req.body);
-  console.log(req.body,"dfghjk");
+  console.log(req);
   if (error) {
     next(trycatchmidddleware(400, error.message));
   }
