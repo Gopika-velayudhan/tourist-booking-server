@@ -1,11 +1,10 @@
 import User from "../Model/UserSchema.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { sendOTP } from "../Twilio/Otp verification.js";
+// import { sendOTP } from "../Twilio/Otp verification.js";
 import { trycatchmidddleware } from "../Middleware/trycatch.js";
 import { joiUserSchema } from "../Model/validateSchema.js";
 import Package from "../Model/PackageSchema.js";
-import nodemailer from "nodemailer";
 
 export const userRegister = async (req, res, next) => {
   try {
@@ -31,11 +30,11 @@ export const userRegister = async (req, res, next) => {
     }
 
     // Send OTP
-    try {
-      await sendOTP(req, res);
-    } catch (error) {
-      return next(error);
-    }
+    // try {
+    //   await sendOTP(req, res);
+    // } catch (error) {
+    //   return next(error);
+    // }
 
     //Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -44,7 +43,7 @@ export const userRegister = async (req, res, next) => {
       Username: Username,
       email: email,
       Phonenumber: Phonenumber,
-      Password: hashedPassword,
+      password: hashedPassword,
     });
     console.log(newUser);
 
@@ -117,30 +116,29 @@ export const userLogin = async (req, res, next) => {
   }
 };
 
-// export const viewallpackage = async (req, res, next) => {
-//   try {
+export const categoryparams = async (req, res, next) => {
+  try {
+    const { category } = req.query;
 
-//     const { category } = req.query;
+    const query = category ? { category } : {};
 
-//     const query = category ? { category } : {};
+    const packages = await Package.find(query);
 
-//     const products = await Package.find(query);
+    if (!packages || packages.length === 0) {
+      return next(trycatchmidddleware(404,"No packages found for the specified category",));
+    }
 
-//     if (!products || products.length === 0) {
-//       return next(trycatchmidddleware(404, "Packages not found for the specified category"));
-//     }
+    res.status(200).json({
+      status: "Success",
+      message: "Successfully fetched packages",
+      data: packages,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
-//     res.status(200).json({
-//       status: "Success",
-//       message: "Successfully fetched products",
-//       data: products,
-//     });
-//   } catch (error) {
-//     next(error);
-//   }
-// };
-
-export const viewallpackage = async (req, res, next) => {
+export const viewallpackage1 = async (req, res, next) => {
   try {
     const packages = await Package.find();
     if (packages) {
@@ -209,15 +207,14 @@ export const showwishlist = async (req, res, next) => {
     next(err);
   }
 };
-export const deletewishlist = async(req,res,next)=>{
-  const userid = req.params.id
-  try{
-    const {packageid} = req.body;
-    if(!packageid){
-     next(trycatchmidddleware(404,"package not found"))
+export const deletewishlist = async (req, res, next) => {
+  const userid = req.params.id;
+  try {
+    const { packageid } = req.body;
+    if (!packageid) {
+      next(trycatchmidddleware(404, "package not found"));
     }
-
-  }catch(err){
-    next(err)
+  } catch (err) {
+    next(err);
   }
-}
+};

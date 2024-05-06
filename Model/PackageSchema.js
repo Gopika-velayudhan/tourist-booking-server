@@ -31,5 +31,5 @@ const PackageSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-});
+},{timestamps:true});
 export default mongoose.model("packages", PackageSchema);
