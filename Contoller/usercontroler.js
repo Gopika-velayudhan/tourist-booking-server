@@ -118,14 +118,16 @@ export const userLogin = async (req, res, next) => {
 
 export const categoryparams = async (req, res, next) => {
   try {
-    const { category } = req.query;
+    const { Category } = req.query;
 
-    const query = category ? { category } : {};
+    const query = Category ? { Category } : {};
 
     const packages = await Package.find(query);
 
     if (!packages || packages.length === 0) {
-      return next(trycatchmidddleware(404,"No packages found for the specified category",));
+      return next(
+        trycatchmidddleware(404, "No packages found for the specified category")
+      );
     }
 
     res.status(200).json({
@@ -150,6 +152,22 @@ export const viewallpackage1 = async (req, res, next) => {
     } else {
       next(trycatchmidddleware(404, "package not found"));
     }
+  } catch (err) {
+    next(err);
+  }
+};
+export const packagebyid = async (req, res, next) => {
+  const packageid = req.params.id;
+  try {
+    const pack = await Package.findById(packageid);
+    if (pack) {
+      return res.status(200).json({
+        status: "success",
+        message: "package is fetched successful",
+        data: pack,
+      });
+    }
+    return next(trycatchmidddleware(404, "package not found"));
   } catch (err) {
     next(err);
   }
@@ -182,31 +200,38 @@ export const Wishlist = async (req, res, next) => {
     next(err);
   }
 };
+
 export const showwishlist = async (req, res, next) => {
   const userid = req.params.id;
   try {
     const user = await User.findById(userid);
     if (!user) {
-      next(trycatchmidddleware(404, "user not found"));
+       next(trycatchmidddleware(404,"user not found"))
     }
-    const wishlistpack = User.wishlist;
+
+    const wishlistpack = user.wishlist;
     if (wishlistpack.length === 0) {
-      res.status(200).json({
+      return res.status(200).json({
         status: "success",
-        message: "package is empty",
+        message: "Wishlist is empty",
         data: [],
       });
     }
-    const wishpack = await Package.find({ _Id: { $in: wishlistpack } });
+
+    const wishpack = await Package.find({ _id: { $in: wishlistpack } });
+    
+
     res.status(200).json({
-      status: "sucess",
-      message: "wishlist package is fetched successfully",
+      status: "success",
+      message: "Wishlist packages fetched successfully",
       data: wishpack,
     });
   } catch (err) {
+    console.error("Error fetching wishlist:", err);
     next(err);
   }
 };
+
 export const deletewishlist = async (req, res, next) => {
   const userid = req.params.id;
   try {
@@ -214,6 +239,15 @@ export const deletewishlist = async (req, res, next) => {
     if (!packageid) {
       next(trycatchmidddleware(404, "package not found"));
     }
+    const user = await User.findById(userid);
+    if (!user) {
+      return next(trycatchmidddleware(404, "user not fount"));
+    }
+    await User.updateOne({ _id: userid }, { $pull: { wishlist: packageid } });
+    res.status(200).json({
+      status: "success",
+      message: "successfully delted package",
+    });
   } catch (err) {
     next(err);
   }
