@@ -5,6 +5,15 @@ import jwt from "jsonwebtoken";
 import { trycatchmidddleware } from "../Middleware/trycatch.js";
 import { joiUserSchema } from "../Model/validateSchema.js";
 import Package from "../Model/PackageSchema.js";
+import algoliasearch from "algoliasearch";
+import dotenv from "dotenv";
+dotenv.config();
+// const Admin_api = process.env.Admin_api;
+// const App_id = process.env.App_id;
+// const Index_name = process.env.Index_name;
+
+// const algoliaClient = algoliasearch(App_id, Admin_api);
+// const index = algoliaClient.initIndex(Index_name);
 
 export const userRegister = async (req, res, next) => {
   try {
@@ -206,7 +215,7 @@ export const showwishlist = async (req, res, next) => {
   try {
     const user = await User.findById(userid);
     if (!user) {
-       next(trycatchmidddleware(404,"user not found"))
+      next(trycatchmidddleware(404, "user not found"));
     }
 
     const wishlistpack = user.wishlist;
@@ -219,7 +228,6 @@ export const showwishlist = async (req, res, next) => {
     }
 
     const wishpack = await Package.find({ _id: { $in: wishlistpack } });
-    
 
     res.status(200).json({
       status: "success",
@@ -250,5 +258,50 @@ export const deletewishlist = async (req, res, next) => {
     });
   } catch (err) {
     next(err);
+  }
+};
+// export const searchPackage = async (req, res, next) => {
+//   const { query } = req.body;
+
+//   try {
+//     const { hits } = await index.search(query);
+//     res.status(200).json({
+//       status: "success",
+//       message: "Search results fetched successfully",
+//       data: hits,
+//     });
+//   } catch (error) {
+//     next(error);
+//   }
+// };
+export const searchPackages = async (req, res, next) => {
+  try {
+    const { destination, Category } = req.query; 
+
+    let query = {};
+
+    if (destination) {
+      query.Destination = { $regex: new RegExp(destination, "i") };
+    }
+    if (Category) {
+      query.Category = { $regex: new RegExp(Category, "i") };
+    }
+
+    const packs = await Package.find(query);
+
+    if (packs.length === 0) {
+      return res.status(404).json({
+        status: "error",
+        message: "No packages found for the specified criteria",
+      });
+    }
+
+    return res.status(200).json({
+      status: "success",
+      message: "Fetched packages available for the specified criteria",
+      data: packs,
+    });
+  } catch (error) {
+    next(error);
   }
 };

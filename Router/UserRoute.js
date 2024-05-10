@@ -8,6 +8,9 @@ import {
   categoryparams,
   packagebyid,
   deletewishlist,
+  
+  searchPackages,
+  
 } from "../Contoller/usercontroler.js";
 
 import verifyToken from "../Middleware/UserAuth.js";
@@ -24,7 +27,7 @@ Userrouter
   .post("/wishlists/:id", Wishlist)
   .get("/wishlists/:id", showwishlist)
   .delete("/wishlists/:id",deletewishlist)
-
+  .get ("/searches",searchPackages)
   
 
 export default Userrouter;
