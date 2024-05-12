@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 const PackageSchema = new mongoose.Schema({
   Destination: {
     type: String,
-    required: true,
+    required:true
   },
   Duration: {
     type: Number,
@@ -25,11 +25,12 @@ const PackageSchema = new mongoose.Schema({
   },
   images: [{
     type: String,
-    required: true,
+    
    }],
   Description: {
     type: String,
-    required: true,
+    required: false
+    
   },
 },{timestamps:true});
 export default mongoose.model("packages", PackageSchema);

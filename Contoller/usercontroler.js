@@ -117,7 +117,7 @@ export const userLogin = async (req, res, next) => {
     const token = jwt.sign(
       { id: validUser._id },
       process.env.User_ACCESS_ToKEN_SECRT,
-      { expiresIn: 86400 }
+      // { expiresIn: 86400 }
     );
     res.status(200).json({ token, user: validUser });
   } catch (error) {
@@ -305,3 +305,21 @@ export const searchPackages = async (req, res, next) => {
     next(error);
   }
 };
+
+
+export const submitSearch = async (req, res,next) => {
+  try {
+    const { Destination, Duration, Price } = req.body;
+
+    
+    
+    console.log("Received form data:", { Destination, Duration, Price });
+  
+    res.status(200).send("Form submitted successfully");
+  } catch (error) {
+    next(error)
+  }
+};
+
+
+

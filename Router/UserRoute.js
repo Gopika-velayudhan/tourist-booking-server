@@ -10,6 +10,7 @@ import {
   deletewishlist,
   
   searchPackages,
+  submitSearch,
   
 } from "../Contoller/usercontroler.js";
 
@@ -28,6 +29,7 @@ Userrouter
   .get("/wishlists/:id", showwishlist)
   .delete("/wishlists/:id",deletewishlist)
   .get ("/searches",searchPackages)
+  .get("/search",submitSearch)
   
 
 export default Userrouter;

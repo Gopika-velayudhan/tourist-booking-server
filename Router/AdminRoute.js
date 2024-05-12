@@ -6,11 +6,12 @@ import {
   getUserById,
   createPackacge,
   viewallpackage,
-  updatepackage,
+
   deletepackage,
   blockUser,
   unblockuser,
   SinglePackage,
+  updatepackages,
 } from "../Contoller/Admincontroler.js";
 import verifytoken1 from "../Middleware/Adminauth.js";
 import imageUpload from "../ImageUpload/Imageupload.js";
@@ -23,9 +24,8 @@ router
   .post("/packages", imageUpload, createPackacge)
   .get("/packages", viewallpackage)
   .get("/packages/:id", SinglePackage)
-  .put("/packages/:id", updatepackage)
+  .put("/packages/:id", updatepackages)
   .delete("/packages/:id", deletepackage)
-  .put("/users/:id", blockUser)
-  .put("/users1/:id", unblockuser);
+  .patch("/users/:id", blockUser)
 
 export default router;

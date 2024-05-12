@@ -37,7 +37,7 @@ export const adminLogin = async (req, res, next) => {
 export const allUser = async (req, res, next) => {
   try {
     const allUser = await User.find();
-    const allUserCount = await User.countDocuments()
+    const allUserCount = await User.countDocuments();
 
     if (allUser.length === 0) {
       return next(trycatchmidddleware(404, "user not found"));
@@ -47,7 +47,7 @@ export const allUser = async (req, res, next) => {
         message: "successfully fetched all user",
 
         data: allUser,
-        dataCount: allUserCount
+        dataCount: allUserCount,
       });
     }
   } catch (err) {
@@ -106,54 +106,54 @@ export const viewallpackage = async (req, res, next) => {
     next(err);
   }
 };
-export const SinglePackage = async(req,res,next)=>{
-    const packageid = req.params.id
+export const SinglePackage = async (req, res, next) => {
+  const packageid = req.params.id;
 
-    try{
-      const pack = await Package.findById(packageid)
-      if(pack){
-        return res.status(200).json({
-          status:"success",
-          message:"successfyllt fetched single package",
-          data:pack
-        })
-        
-      }
-      return next(trycatchmidddleware(404,"package not found"))
-    }catch(err){
-      next(err)
+  try {
+    const pack = await Package.findById(packageid);
+    if (pack) {
+      return res.status(200).json({
+        status: "success",
+        message: "successfyllt fetched single package",
+        data: pack,
+      });
     }
-   
-}
-export const updatepackage = async (req, res, next) => {
+    return next(trycatchmidddleware(404, "package not found"));
+  } catch (err) {
+    next(err);
+  }
+};
+export const updatepackages = async (req, res, next) => {
   try {
     const { value, error } = joiPackageSchema.validate(req.body);
+    
+
+    
     if (error) {
-      return res.status(400).json({ message: error.message });
+      next(trycatchmidddleware(400, error.message));
     }
 
-    const { _id } = req.params;
+    const { id } = req.params;
+    console.log(id)
 
-    const updatedPackage = await Package.findOneAndUpdate(
-      { _id }, 
+    const updatepackage = await Package.findByIdAndUpdate(
+      id,
       { $set: { ...value } },
       { new: true }
     );
-
-    if (updatedPackage) {
+    if (updatepackage) {
       return res.status(200).json({
         status: "success",
         message: "Successfully updated data",
-        data: updatedPackage,
+        data: updatepackage,
       });
     } else {
-      return res.status(404).json({ message: "Property not found" });
+      return next(trycatchmidddleware(404, error.message));
     }
   } catch (error) {
     return next(error);
   }
 };
-
 export const deletepackage = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -171,11 +171,10 @@ export const deletepackage = async (req, res, next) => {
   }
 };
 
-
-
 export const blockUser = async (req, res, next) => {
   try {
-    const userId = req.params.id; 
+    const userId = req.params.id;
+    const is_block = req.query.is_block
     const user = await User.findById(userId);
 
     if (!user) {
