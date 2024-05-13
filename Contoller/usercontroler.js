@@ -307,19 +307,3 @@ export const searchPackages = async (req, res, next) => {
 };
 
 
-export const submitSearch = async (req, res,next) => {
-  try {
-    const { Destination, Duration, Price } = req.body;
-
-    
-    
-    console.log("Received form data:", { Destination, Duration, Price });
-  
-    res.status(200).send("Form submitted successfully");
-  } catch (error) {
-    next(error)
-  }
-};
-
-
-

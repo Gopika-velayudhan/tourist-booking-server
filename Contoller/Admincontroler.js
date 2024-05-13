@@ -126,15 +126,13 @@ export const SinglePackage = async (req, res, next) => {
 export const updatepackages = async (req, res, next) => {
   try {
     const { value, error } = joiPackageSchema.validate(req.body);
-    
 
-    
     if (error) {
       next(trycatchmidddleware(400, error.message));
     }
 
     const { id } = req.params;
-    console.log(id)
+    console.log(id);
 
     const updatepackage = await Package.findByIdAndUpdate(
       id,
@@ -171,46 +169,30 @@ export const deletepackage = async (req, res, next) => {
   }
 };
 
-export const blockUser = async (req, res, next) => {
+export const blockuser = async (req, res, next) => {
   try {
     const userId = req.params.id;
-    const is_block = req.query.is_block
+    const action = req.query.action;
+
     const user = await User.findById(userId);
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    if (user.isBlocked) {
+    if (action === "block" && user.isBlocked) {
       return res.status(400).json({ message: "User is already blocked" });
-    }
-
-    user.isBlocked = true;
-    await user.save();
-
-    res.status(200).json({ message: "User blocked successfully", user });
-  } catch (err) {
-    next(err);
-  }
-};
-
-export const unblockuser = async (req, res, next) => {
-  try {
-    const userId = req.params.id;
-    const user = await User.findById(userId);
-
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    if (!user.isBlocked) {
+    } else if (action === "unblock" && !user.isBlocked) {
       return res.status(400).json({ message: "User is not blocked" });
     }
 
-    user.isBlocked = false;
+    user.isBlocked = action === "block";
     await user.save();
 
-    res.status(200).json({ message: "User unblocked successfully", user });
+    const actionMessage = action === "block" ? "blocked" : "unblocked";
+    res
+      .status(200)
+      .json({ message: `User ${actionMessage} successfully`, user });
   } catch (err) {
     next(err);
   }
