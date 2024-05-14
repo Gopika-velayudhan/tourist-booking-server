@@ -54,7 +54,9 @@ export const allUser = async (req, res, next) => {
     next(err);
   }
 };
-export const getUserById = async (req, res, next) => {
+export const 
+
+getUserById = async (req, res, next) => {
   const userId = req.params.id;
   try {
     const user = await User.findById(userId);
@@ -72,7 +74,7 @@ export const getUserById = async (req, res, next) => {
 };
 export const createPackacge = async (req, res, next) => {
   const { value, error } = joiPackageSchema.validate(req.body);
-  console.log(req);
+
   if (error) {
     next(trycatchmidddleware(400, error.message));
   }
@@ -132,7 +134,7 @@ export const updatepackages = async (req, res, next) => {
     }
 
     const { id } = req.params;
-    console.log(id);
+  
 
     const updatepackage = await Package.findByIdAndUpdate(
       id,

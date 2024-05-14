@@ -260,33 +260,23 @@ export const deletewishlist = async (req, res, next) => {
     next(err);
   }
 };
-// export const searchPackage = async (req, res, next) => {
-//   const { query } = req.body;
 
-//   try {
-//     const { hits } = await index.search(query);
-//     res.status(200).json({
-//       status: "success",
-//       message: "Search results fetched successfully",
-//       data: hits,
-//     });
-//   } catch (error) {
-//     next(error);
-//   }
-// };
 export const searchPackages = async (req, res, next) => {
   try {
-    const { destination, Category } = req.query; 
+    const { Destination, Duration, Price } = req.query; 
 
     let query = {};
 
-    if (destination) {
-      query.Destination = { $regex: new RegExp(destination, "i") };
+    if (Destination) {
+      query.Destination = { $regex: new RegExp(Destination, "i") };
     }
-    if (Category) {
-      query.Category = { $regex: new RegExp(Category, "i") };
+    if (Duration) {
+      query.Duration = Number(Duration)
     }
-
+    if (Price) {
+      query.Price = Number(Price); 
+    }
+    
     const packs = await Package.find(query);
 
     if (packs.length === 0) {
@@ -305,5 +295,6 @@ export const searchPackages = async (req, res, next) => {
     next(error);
   }
 };
+
 
 
