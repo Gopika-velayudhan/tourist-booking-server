@@ -9,6 +9,9 @@ import {
   packagebyid,
   deletewishlist,
   searchPackages,
+  AddToCart,
+  ViewCart,
+  RemoveCart
 } from "../Contoller/usercontroler.js";
 
 import verifyToken from "../Middleware/UserAuth.js";
@@ -25,6 +28,10 @@ Userrouter
   .post("/wishlists/:id", Wishlist)
   .get("/wishlists/:id", showwishlist)
   .delete("/wishlists/:id", deletewishlist)
-  .get("/searches", searchPackages);
+  .get("/searches", searchPackages)
+  .post("/addbooking/:id",AddToCart)
+  .get("/viewcart/:id",ViewCart)
+  .put('/deletecart/:id',RemoveCart)
+  
 
 export default Userrouter;
