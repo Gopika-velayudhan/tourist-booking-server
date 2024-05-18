@@ -9,10 +9,11 @@ import {
   packagebyid,
   deletewishlist,
   searchPackages,
-  // verifyPayment,
+  Verifypayment,
   singleUser,
-  // Order
+  Order,
   Payment
+
   
 } from "../Contoller/usercontoler.js";
 
@@ -25,17 +26,20 @@ Userrouter
   //   .post("/verifyotp", verifyOTP)
   .post("/userRegister", userRegister)
   .post("/login", userLogin)
-  .use(verifyToken)
   .get("/packages", categoryparams)
+  .get("/searches", searchPackages)
+  .use(verifyToken)
+  
   .get("/packages/:id", packagebyid)
   .post("/wishlists/:id", Wishlist)
   .get("/wishlists/:id", showwishlist)
   .delete("/wishlists/:id", deletewishlist)
   .get("/searches", searchPackages)
   .get('/users/:userid',singleUser)
-  // .post("/orders",Order)
-  // .post("/verifypayment",verifyPayment)
+  .post("/orders",Order)
+   .post("/verifypayment",Verifypayment)
   .post("/payment",Payment)
+  
  
   
   

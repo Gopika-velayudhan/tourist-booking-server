@@ -19,17 +19,12 @@ const userSchema = new mongoose.Schema({
         type:String,
         required:true
     },
-    ProfileImage:{
+   
+    
+    
+   Review: {
         type:String
-    },
-    
-    
-    cart:[
-        {
-            type:mongoose.Schema.ObjectId,
-            ref:"Package"
-        }
-    ],
+   },
     wishlist:[
         {
             type:mongoose.Schema.ObjectId,
