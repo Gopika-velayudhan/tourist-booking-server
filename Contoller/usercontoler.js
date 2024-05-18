@@ -5,15 +5,10 @@ import jwt from "jsonwebtoken";
 import { trycatchmidddleware } from "../Middleware/trycatch.js";
 import { joiUserSchema } from "../Model/validateSchema.js";
 import Package from "../Model/PackageSchema.js";
-
+import Razorpay from "razorpay";
+import crypto from "crypto";
 import dotenv from "dotenv";
 dotenv.config();
-// const Admin_api = process.env.Admin_api;
-// const App_id = process.env.App_id;
-// const Index_name = process.env.Index_name;
-
-// const algoliaClient = algoliasearch(App_id, Admin_api);
-// const index = algoliaClient.initIndex(Index_name);
 
 export const userRegister = async (req, res, next) => {
   try {
@@ -116,7 +111,7 @@ export const userLogin = async (req, res, next) => {
     }
     const token = jwt.sign(
       { id: validUser._id },
-      process.env.User_ACCESS_ToKEN_SECRT,
+      process.env.User_ACCESS_ToKEN_SECRT
       // { expiresIn: 86400 }
     );
     res.status(200).json({ token, user: validUser });
@@ -276,7 +271,7 @@ export const searchPackages = async (req, res, next) => {
     if (price) {
       query.Price = Number(price);
     }
-    
+
     const packs = await Package.find(query);
 
     if (packs.length === 0) {
@@ -295,18 +290,19 @@ export const searchPackages = async (req, res, next) => {
     next(error);
   }
 };
+
 export const AddToCart = async (req, res, next) => {
   const userId = req.params.id;
   const { packageid } = req.body;
 
   if (!packageid) {
-    return next(trycatchmidddleware(404, "Package not found"));
+    return next({ status: 404, message: "Package not found" });
   }
 
   try {
     const user = await User.findById(userId);
     if (!user) {
-      return next(trycatchmidddleware(404, "User not found"));
+      return next({ status: 404, message: "User not found" });
     }
 
     const updatedUser = await User.findByIdAndUpdate(
@@ -316,79 +312,56 @@ export const AddToCart = async (req, res, next) => {
     );
 
     if (!updatedUser) {
-      return next(trycatchmidddleware(500, "Failed to update cart"));
+      return next({ status: 500, message: "Failed to update cart" });
     }
 
     res.status(200).json({
       status: "success",
       message: "Successfully added package to cart",
-      data: updatedUser.cart
+      data: updatedUser.cart,
     });
-    console.log(updatedUser.cart);
   } catch (err) {
     next(err);
   }
 };
-
-
-
-export const ViewCart = async (req, res, next) => {
-  const userId = req.params.id;
+export const singleUser = async (req, res, next) => {
+  const { userid } = req.params;
 
   try {
-    const user = await User.findById(userId);
-    if (!user) {
-      return next(trycatchmidddleware(404, "User not found"));
-    }
-
-    const cartPackageIds = user.cart;
-    console.log("Cart Package IDs:", cartPackageIds); 
-
-    if (cartPackageIds.length === 0) {
-      return res.status(200).json({
+    const user = await User.findById(userid);
+    if (user) {
+      res.status(200).json({
         status: "success",
-        message: "Cart is empty",
-        data: []
+        message: "user fetched by id",
+        data: user,
       });
     }
-
-    const cartPackages = await Package.find({ _id: { $in: cartPackageIds } });
-    console.log("Fetched Cart Packages:", cartPackages)
-
-    res.status(200).json({
-      status: "success",
-      message: "Successfully fetched cart products",
-      data: cartPackages
-    });
   } catch (err) {
     next(err);
   }
 };
-export const RemoveCart = async (req, res, next) => {
-  const userId = req.params.userid; 
-  const itemId = req.params.itemid; 
+
+
+
+export const Payment = async (req, res, next) => {
+  console.log('Razorpay Key ID:', process.env.RAZORPAY_KEY_ID);
+  console.log('Razorpay Secret:', process.env.RAZORPAY_SECRET);
+  
+  const razorpay = new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID,
+    key_secret: process.env.RAZORPAY_SECRET,
+  });
+
+  const { amount, currency, receipt } = req.body;
+
   try {
-    if (!itemId) {
-      return next(trycatchmidddleware(404, "Package not found")); 
-    }
-    const user = await User.findById(userId);
-    if (!user) {
-      return next(trycatchmidddleware(404, "User not found")); 
-    }
-    const result = await User.updateOne(
-      { _id: userId },
-      { $pull: { cart: { packageid: itemId } } }
-    );
-    if (result.modifiedCount > 0) {
-      return res.status(200).json({
-        message: "Package removed successfully",
-      });
-    } else {
-      return res.status(404).json({
-        message: "Package not found in the cart",
-      });
-    }
-  } catch (err) {
-    return next(err); 
+    const payment = await razorpay.orders.create({ amount, currency, receipt });
+    res.json(payment);
+  } catch (error) {
+    console.log(error);
+    return res.status(401).json({
+      status: "error",
+      message: error.message
+    });
   }
 };

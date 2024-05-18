@@ -9,12 +9,15 @@ import {
   packagebyid,
   deletewishlist,
   searchPackages,
-  AddToCart,
-  ViewCart,
-  RemoveCart
-} from "../Contoller/usercontroler.js";
+  // verifyPayment,
+  singleUser,
+  // Order
+  Payment
+  
+} from "../Contoller/usercontoler.js";
 
 import verifyToken from "../Middleware/UserAuth.js";
+
 
 Userrouter
 
@@ -29,9 +32,12 @@ Userrouter
   .get("/wishlists/:id", showwishlist)
   .delete("/wishlists/:id", deletewishlist)
   .get("/searches", searchPackages)
-  .post("/addbooking/:id",AddToCart)
-  .get("/viewcart/:id",ViewCart)
-  .put('/deletecart/:id',RemoveCart)
+  .get('/users/:userid',singleUser)
+  // .post("/orders",Order)
+  // .post("/verifypayment",verifyPayment)
+  .post("/payment",Payment)
+ 
+  
   
 
 export default Userrouter;
