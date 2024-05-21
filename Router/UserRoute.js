@@ -12,7 +12,10 @@ import {
   // Verifypayment,
   singleUser,
   // Order,
-  Payment
+  Payment,
+  createBooking,
+  getBookingDetails,
+  getAllBookings
 
   
 } from "../Contoller/usercontoler.js";
@@ -39,7 +42,9 @@ Userrouter
   // .post("/orders",Order)
   //  .post("/verifypayment",Verifypayment)
   .post("/payment",Payment)
-  
+  .post('/bookings',createBooking)
+  .get('/bookings/:id',getBookingDetails)
+  .get('/bookings',getAllBookings)
  
   
   

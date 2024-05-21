@@ -121,7 +121,7 @@ export const deleteReview = async (req, res, next) => {
   const { reviewId } = req.params;
 
   try {
-    // Check if the review exists
+    
     const review = await Review.findById(reviewId);
     if (!review) {
       return res.status(404).json({

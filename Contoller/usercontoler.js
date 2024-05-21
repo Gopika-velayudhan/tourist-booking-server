@@ -1,4 +1,5 @@
 import User from "../Model/UserSchema.js";
+import Booking from "../Model/BookingSchema.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 // import { sendOTP } from "../Twilio/Otp verification.js";
@@ -291,7 +292,6 @@ export const searchPackages = async (req, res, next) => {
   }
 };
 
-
 export const singleUser = async (req, res, next) => {
   const { userid } = req.params;
 
@@ -309,15 +309,10 @@ export const singleUser = async (req, res, next) => {
   }
 };
 
-
-
 export const Payment = async (req, res, next) => {
-  console.log('Razorpay Key ID:', process.env.RAZORPAY_KEY_ID);
-  console.log('Razorpay Secret:', process.env.RAZORPAY_SECRET);
-  
   const razorpay = new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID,
-    key_secret: process.env.RAZORPAY_SECRET,
+    key_id: "rzp_test_eyXHobfs6uqaFU",
+    key_secret: "y20yBI0CRzavQfABRpVJLsdj",
   });
 
   const { amount, currency, receipt } = req.body;
@@ -327,60 +322,83 @@ export const Payment = async (req, res, next) => {
     res.json(payment);
   } catch (error) {
     console.log(error);
-    next(trycatchmidddleware(error.message))
-   
+    next(trycatchmidddleware(error.message));
   }
 };
 
-// export const Order=async(req,res,next)=>{
-//   try {
-   
-//     const instance=new Razorpay({
-//       key_id:process.env.RAZORPAY_KEY_ID,
-//       key_secret:process.env.RAZORPAY_SECRET,
-//     })
 
-//     const options={
-      
-//       amount:req.body.amount*100,
-//       currency:"INR",
-//       receipt:crypto.randomBytes(10).toString("hex")
-//     }
-    
-//     instance.orders.create(options,(error,order)=>{
-//       if(error){
-//         console.log(error);
-//         return res.status(500).json({message:"Something Went ewrong"})
-//       }
-//       res.status(200).json({
-//         data:order
-//       })
-//     })
-    
-//   } catch (error) {
-//     console.log("error",error)
-//     return res.status(500).json({message:"Internal server error"})
 
-//   }
-// }
+const razorpay = new Razorpay({
+  key_id: "rzp_test_eyXHobfs6uqaFU",
+  key_secret: "y20yBI0CRzavQfABRpVJLsdj",
+});
 
-// export const Verifypayment=async(req,res,next)=>{
-//   try {
-//     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
-//             req.body;
-//       const sign = razorpay_order_id + "|" + razorpay_payment_id;
-//       const expectedSign = crypto
-//             .createHmac("sha256", process.env.RAZORPAY_SECRET)
-//             .update(sign.toString())
-//             .digest("hex");
+export const createBooking = async (req, res, next) => {
+  const { userId, packageId, amount, currency } = req.body;
+    console.log(req.body);
 
-//       if (razorpay_signature === expectedSign) {
-//         return res.status(200).json({ message: "Payment verified successfully" });
-//       } else {
-//         return res.status(400).json({ message: "Invalid signature sent!" });
-//       }
-//   } catch (error) {
-//     res.status(500).json({ message: "Internal Server Error!" });
-//         console.log(error);
-//   }
-// } 
+  try {
+    const payment = await razorpay.orders.create({ amount, currency, receipt: `receipt_${Date.now()}` });
+
+    const booking = new Booking({
+      user: userId,
+      package: packageId,
+      payment_id: payment.id,
+      total_amount: amount,
+    });
+
+    await booking.save();
+
+    res.status(201).json({
+      status: "success",
+      message: "Booking created successfully",
+      data: booking,
+    });
+  } catch (error) {
+    console.log(error);
+    next(trycatchmidddleware(error.message));
+  }
+};
+
+
+export const getBookingDetails = async (req, res, next) => {
+  const { id } = req.params;
+
+  try {
+    const booking = await Booking.findById(id)
+      .populate('user')  
+      .populate('package');  
+
+    if (!booking) {
+      return next(trycatchmidddleware(404, "Booking not found"));
+    }
+
+    res.status(200).json({
+      status: "success",
+      message: "Booking details fetched successfully",
+      data: booking,
+    });
+  } catch (error) {
+    console.log(error);
+    next(trycatchmidddleware(error.message));
+  }
+};
+
+export const getAllBookings = async (req, res, next) => {
+  try {
+    const bookings = await Booking.find().populate('user package');
+
+    if (bookings.length === 0) {
+      return next(trycatchmidddleware(404, "No bookings found"));
+    }
+
+    res.status(200).json({
+      status: "success",
+      message: "All bookings fetched successfully",
+      data: bookings,
+    });
+  } catch (error) {
+    console.log(error);
+    next(trycatchmidddleware(error.message));
+  }
+};
