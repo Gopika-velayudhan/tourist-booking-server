@@ -9,9 +9,9 @@ import {
   packagebyid,
   deletewishlist,
   searchPackages,
-  Verifypayment,
+  // Verifypayment,
   singleUser,
-  Order,
+  // Order,
   Payment
 
   
@@ -36,8 +36,8 @@ Userrouter
   .delete("/wishlists/:id", deletewishlist)
   .get("/searches", searchPackages)
   .get('/users/:userid',singleUser)
-  .post("/orders",Order)
-   .post("/verifypayment",Verifypayment)
+  // .post("/orders",Order)
+  //  .post("/verifypayment",Verifypayment)
   .post("/payment",Payment)
   
  

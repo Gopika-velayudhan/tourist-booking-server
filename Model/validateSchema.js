@@ -20,4 +20,11 @@ export const joiPackageSchema = Joi.object({
   images: Joi.array().items(Joi.string()),
   Description:Joi.string()
 });
+export const joiReviewSchema = Joi.object({
+  user: Joi.string().required(),
+  package: Joi.string().required(),
+  rating: Joi.number().min(1).max(5).required(),
+  reviewText: Joi.string().min(10).required()
+});
+
 

@@ -4,7 +4,8 @@ import bodyParser from "body-parser";
 import dotenv from "dotenv";
 import cors from "cors";
 import Userrouter from "./Router/UserRoute.js";
-import router from "./Router/AdminRoute.js";
+import Adminrouter from "./Router/AdminRoute.js";
+import Reviewrouter from "./Router/ReviewRoute.js";
 
 dotenv.config();
 mongoose
@@ -15,15 +16,18 @@ mongoose
   .catch((err) => { 
     console.log(err);
   });
+
 const app = express();
 app.use(express.json()); 
 app.use(express.urlencoded({ extended: true })); 
 app.use(cors());
-app.use(bodyParser.json())
-const port = 3005;
-app.use("/api/user", Userrouter);
-app.use('/api/admin',router)
+app.use(bodyParser.json());
 
+const port = 3005;
+
+app.use("/api/user", Userrouter);
+app.use('/api/admin', Adminrouter);
+app.use('/api/review', Reviewrouter);
 
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;
