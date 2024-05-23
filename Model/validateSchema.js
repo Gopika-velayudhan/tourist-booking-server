@@ -8,23 +8,19 @@ export const joiUserSchema = Joi.object({
   otp: Joi.string(),
 });
 
-
-
 export const joiPackageSchema = Joi.object({
   Destination: Joi.string().required(),
   Duration: Joi.number().required(),
   Category: Joi.string().required(),
   Price: Joi.number().required(),
   Available_Date: Joi.date().required(),
-    
+
   images: Joi.array().items(Joi.string()),
-  Description:Joi.string()
+  Description: Joi.string(),
 });
 export const joiReviewSchema = Joi.object({
   user: Joi.string().required(),
   package: Joi.string().required(),
   rating: Joi.number().min(1).max(5).required(),
-  reviewText: Joi.string().min(10).required()
+  reviewText: Joi.string().min(10).required(),
 });
-
-

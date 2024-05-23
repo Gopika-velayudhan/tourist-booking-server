@@ -7,7 +7,7 @@ import { trycatchmidddleware } from "../Middleware/trycatch.js";
 import { joiUserSchema } from "../Model/validateSchema.js";
 import Package from "../Model/PackageSchema.js";
 import Razorpay from "razorpay";
-import crypto from "crypto";
+// import { sendEmailToUser } from "../nodemailer/Nodemailer.js";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -311,8 +311,8 @@ export const singleUser = async (req, res, next) => {
 
 export const Payment = async (req, res, next) => {
   const razorpay = new Razorpay({
-    key_id: "rzp_test_eyXHobfs6uqaFU",
-    key_secret: "y20yBI0CRzavQfABRpVJLsdj",
+    key_id: process.env.RAZORPAY_KEY_ID,
+    key_secret: process.env.RAZORPAY_SECRET,
   });
 
   const { amount, currency, receipt } = req.body;
@@ -326,19 +326,20 @@ export const Payment = async (req, res, next) => {
   }
 };
 
-
-
 const razorpay = new Razorpay({
-  key_id: "rzp_test_eyXHobfs6uqaFU",
-  key_secret: "y20yBI0CRzavQfABRpVJLsdj",
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_SECRET,
 });
 
 export const createBooking = async (req, res, next) => {
   const { userId, packageId, amount, currency } = req.body;
-    console.log(req.body);
 
   try {
-    const payment = await razorpay.orders.create({ amount, currency, receipt: `receipt_${Date.now()}` });
+    const payment = await razorpay.orders.create({
+      amount: amount * 100,
+      currency,
+      receipt: `receipt_${Date.now()}`,
+    });
 
     const booking = new Booking({
       user: userId,
@@ -353,21 +354,20 @@ export const createBooking = async (req, res, next) => {
       status: "success",
       message: "Booking created successfully",
       data: booking,
+      payment_id: payment.id,
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     next(trycatchmidddleware(error.message));
   }
 };
-
-
 export const getBookingDetails = async (req, res, next) => {
   const { id } = req.params;
 
   try {
     const booking = await Booking.findById(id)
-      .populate('user')  
-      .populate('package');  
+      .populate("user")
+      .populate("package");
 
     if (!booking) {
       return next(trycatchmidddleware(404, "Booking not found"));
@@ -386,7 +386,7 @@ export const getBookingDetails = async (req, res, next) => {
 
 export const getAllBookings = async (req, res, next) => {
   try {
-    const bookings = await Booking.find().populate('user package');
+    const bookings = await Booking.find().populate("user package");
 
     if (bookings.length === 0) {
       return next(trycatchmidddleware(404, "No bookings found"));

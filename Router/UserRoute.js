@@ -19,6 +19,7 @@ import {
 
   
 } from "../Contoller/usercontoler.js";
+import {sendEmailToUser} from '../nodemailer/Nodemailer.js'
 
 import verifyToken from "../Middleware/UserAuth.js";
 
@@ -45,7 +46,7 @@ Userrouter
   .post('/bookings',createBooking)
   .get('/bookings/:id',getBookingDetails)
   .get('/bookings',getAllBookings)
- 
+ .post('/mail',sendEmailToUser)
   
   
 
