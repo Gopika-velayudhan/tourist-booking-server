@@ -1,15 +1,19 @@
 import mongoose from "mongoose";
 
-const userSchema = new mongoose.Schema({
-  Username: { type: String, required: true },
-  email: { type: String, required: true },
-  Phonenumber: { type: Number, required: true },
-  password: { type: String, required: true },
-  wishlist: [{ type: mongoose.Schema.ObjectId, ref: "Package" }],
-  isActive: { type: Boolean, default: true },
-  isBlocked: { type: Boolean, default: false },
-  reviews: [{ type: mongoose.Schema.ObjectId, ref: "Review" }],
-}, { timestamps: true });
+const userSchema = new mongoose.Schema(
+  {
+    Username: { type: String, required: true },
+    email: { type: String, required: true },
+    Phonenumber: { type: Number, required: true },
+    password: { type: String, required: true },
+    Profileimg:{type:String,default:"https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png"},
+    wishlist: [{ type: mongoose.Schema.ObjectId, ref: "Package" }],
+    isActive: { type: Boolean, default: true },
+    isBlocked: { type: Boolean, default: false },
+    reviews: [{ type: mongoose.Schema.ObjectId, ref: "Review" }],
+  },
+  { timestamps: true }
+);
 
 const User = mongoose.model("User", userSchema);
 

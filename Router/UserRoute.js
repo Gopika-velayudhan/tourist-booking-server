@@ -15,13 +15,15 @@ import {
   Payment,
   createBooking,
   getBookingDetails,
-  getAllBookings
-
-  
+  getAllBookings,
+  updateuser,
+  deleteAccount
 } from "../Contoller/usercontoler.js";
-import {sendEmailToUser} from '../nodemailer/Nodemailer.js'
-
+import { sendEmailToUser } from "../nodemailer/Nodemailer.js";
+import uploadSingleImage from "../ImageUpload/Imageupload1.js";
 import verifyToken from "../Middleware/UserAuth.js";
+
+
 
 
 Userrouter
@@ -33,21 +35,22 @@ Userrouter
   .get("/packages", categoryparams)
   .get("/searches", searchPackages)
   .use(verifyToken)
-  
+
   .get("/packages/:id", packagebyid)
   .post("/wishlists/:id", Wishlist)
   .get("/wishlists/:id", showwishlist)
   .delete("/wishlists/:id", deletewishlist)
   .get("/searches", searchPackages)
-  .get('/users/:userid',singleUser)
+  .get("/users/:userid", singleUser)
   // .post("/orders",Order)
   //  .post("/verifypayment",Verifypayment)
-  .post("/payment",Payment)
-  .post('/bookings',createBooking)
-  .get('/bookings/:id',getBookingDetails)
-  .get('/bookings',getAllBookings)
- .post('/mail',sendEmailToUser)
-  
+  .post("/payment", Payment)
+  .post("/bookings", createBooking)
+  .get("/bookings/:id", getBookingDetails)
+  .get("/bookings", getAllBookings)
+  .post("/mail", sendEmailToUser)
+  .put("/users/:id",uploadSingleImage,updateuser)
+  .delete("/users/:id",deleteAccount)
   
 
 export default Userrouter;

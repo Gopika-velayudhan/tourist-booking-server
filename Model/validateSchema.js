@@ -5,6 +5,7 @@ export const joiUserSchema = Joi.object({
   email: Joi.string().email(),
   Phonenumber: Joi.number().min(10),
   password: Joi.string(),
+  Profileimg:Joi.string(),
   otp: Joi.string(),
 });
 

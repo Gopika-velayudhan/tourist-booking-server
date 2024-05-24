@@ -402,3 +402,71 @@ export const getAllBookings = async (req, res, next) => {
     next(trycatchmidddleware(error.message));
   }
 };
+
+export const createProfile = async (req, res, next) => {
+  const { userId } = req.params;
+  const { value, error } = joiUserSchema.validate(req.body);
+
+  try {
+    if (error) {
+      return next(trycatchmidddleware(400, "Validation error"));
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return next(trycatchmidddleware(404, "User not found"));
+    }
+
+    user.profile = value;
+    await user.save();
+
+    res.status(200).json({ message: "Profile updated successfully", user });
+  } catch (err) {
+    next(err);
+  }
+};
+export const updateuser = async (req, res, next) => {
+  try {
+    const { Username, email, Phonenumber, Profileimg } = req.body;
+
+    // if (error) {
+    //   next(trycatchmidddleware(400, error.message));
+    // }
+
+    const { id } = req.params;
+
+    const updatepackage = await User.findByIdAndUpdate(
+      id,
+      { $set: { Username, email, Phonenumber, Profileimg } },
+      { new: true }
+    );
+    if (updatepackage) {
+      return res.status(200).json({
+        status: "success",
+        message: "Successfully updated data",
+        data: updateuser,
+      });
+    } else {
+      return next(trycatchmidddleware(404, error.message));
+    }
+  } catch (error) {
+    return next(error);
+  }
+};
+export const deleteAccount = async (req, res, next) => {
+  const { id } = req.params;
+
+  try {
+    const user = await User.findById(id);
+    if (!user) {
+      next(trycatchmidddleware(404, "user not found"));
+    }
+    await User.deleteOne({ _id: id });
+    return res.status(200).json({
+      status: "success",
+      message: "suucessfully deleted user",
+    });
+  } catch (err) {
+    next(err);
+  }
+};
