@@ -97,7 +97,7 @@ export const getPackageReviews = async (req, res, next) => {
   try {
     const reviews = await Review.find({ package: packageId }).populate(
       "user",
-      "Username email"
+      "Username email Profileimg "
     );
 
     if (!reviews || reviews.length === 0) {

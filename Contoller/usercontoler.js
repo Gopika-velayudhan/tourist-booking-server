@@ -45,6 +45,9 @@ export const userRegister = async (req, res, next) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = new User({
+
+
+      
       Username: Username,
       email: email,
       Phonenumber: Phonenumber,

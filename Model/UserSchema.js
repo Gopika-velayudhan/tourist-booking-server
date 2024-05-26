@@ -6,7 +6,7 @@ const userSchema = new mongoose.Schema(
     email: { type: String, required: true },
     Phonenumber: { type: Number, required: true },
     password: { type: String, required: true },
-    Profileimg:{type:String,default:"https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png"},
+    Profileimg:{type:String},
     wishlist: [{ type: mongoose.Schema.ObjectId, ref: "Package" }],
     isActive: { type: Boolean, default: true },
     isBlocked: { type: Boolean, default: false },
