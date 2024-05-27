@@ -19,7 +19,7 @@ import {
   updateuser,
   deleteAccount
 } from "../Contoller/usercontoler.js";
-import { sendEmailToUser } from "../nodemailer/Nodemailer.js";
+
 import uploadSingleImage from "../ImageUpload/Imageupload1.js";
 import verifyToken from "../Middleware/UserAuth.js";
 
@@ -48,7 +48,7 @@ Userrouter
   .post("/bookings", createBooking)
   .get("/bookings/:id", getBookingDetails)
   .get("/bookings", getAllBookings)
-  .post("/mail", sendEmailToUser)
+  
   .put("/users/:id",uploadSingleImage,updateuser)
   .delete("/users/:id",deleteAccount)
   

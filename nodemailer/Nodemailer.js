@@ -1,37 +1,30 @@
 import nodemailer from "nodemailer";
 
-export const sendEmailToUser = async (user) => {
-  console.log(user, "this is from nodemailer");
-
-  const email = user;
-
+export const sendEmailToUser = async (amount, currency, receipt) => {
   const transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
-    port: 587,
-    secure: false,
+    port: 465, 
+    secure: true, 
     auth: {
       user: process.env.APP_EMAIL,
       pass: process.env.APP_PASSWORD,
     },
-    requireTLS: true,
-    logger: true,
   });
 
-  const info = await transporter.sendMail({
+  const mailOptions = {
     from: process.env.APP_EMAIL,
-    to: email,
-    subject: `Booking comfirm`,
+    to: "gopikakv627@gmail.com",
+    subject: `Booking confirm`,
     html: `<h4>Dear Customer,</h4>
-        <p>This is to acknowledge mail to the details of your package booking details</p>
-        
-        
-        <p>Thank you for your Booking. If you have any Issues, contact the website.</p>
-       
-        `,
+           <p>This is to acknowledge mail to the details of your package booking details</p>
+           <p>Thank you for your Booking. If you have any Issues, contact the Admin agent.</p>
+          `,
+  };
 
-    headers: { "x-myheader": "test header" },
-  });
-
-  if (info.accepted.includes(email)) return true;
-  else return false;
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log("Email sent successfully");
+  } catch (err) {
+    console.error("Error sending email:", err);
+  }
 };

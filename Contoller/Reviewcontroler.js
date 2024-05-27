@@ -132,7 +132,7 @@ export const deleteReview = async (req, res, next) => {
 
     await Review.deleteOne({ _id: reviewId });
 
-    //   await User.updateOne({ _id: review.user }, { $pull: { reviews: reviewId } });
+  
 
     return res.status(200).json({
       status: "success",

@@ -7,7 +7,7 @@ import { trycatchmidddleware } from "../Middleware/trycatch.js";
 import { joiUserSchema } from "../Model/validateSchema.js";
 import Package from "../Model/PackageSchema.js";
 import Razorpay from "razorpay";
-// import { sendEmailToUser } from "../nodemailer/Nodemailer.js";
+import { sendEmailToUser } from "../nodemailer/Nodemailer.js";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -45,9 +45,6 @@ export const userRegister = async (req, res, next) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = new User({
-
-
-      
       Username: Username,
       email: email,
       Phonenumber: Phonenumber,
@@ -121,6 +118,34 @@ export const userLogin = async (req, res, next) => {
     res.status(200).json({ token, user: validUser });
   } catch (error) {
     next(error);
+  }
+};
+
+export const forgotPassword = async (req, res, next) => {
+  const { email } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return next(trycatchmidddleware(404, "User not found"));
+    }
+
+    const token = jwt.sign(
+      { id: user._id },
+      process.env.PASSWORD_RESET_TOKEN_SECRET,
+      { expiresIn: '1h' }
+    );
+
+    const resetLink = `${process.env.CLIENT_URL}/reset-password/${token}`;
+
+    await sendEmailToUser(email, "Password Reset", `Click here to reset your password: ${resetLink}`);
+
+    res.status(200).json({
+      status: "success",
+      message: "Password reset link sent to your email",
+    });
+  } catch (error) {
+    next(trycatchmidddleware(500, error.message));
   }
 };
 
@@ -199,7 +224,7 @@ export const Wishlist = async (req, res, next) => {
       { _id: userid },
       { $push: { wishlist: packageid } }
     );
-    res.status(201).json({
+    res.status(201).send({
       status: "Success",
       message: "successfully added package in wishlist",
       data: updatewishlist,
@@ -322,7 +347,12 @@ export const Payment = async (req, res, next) => {
 
   try {
     const payment = await razorpay.orders.create({ amount, currency, receipt });
-    res.json(payment);
+    await sendEmailToUser("gopikakv627@gmail.com", amount, currency, receipt);
+    res.json({
+      status: "success",
+      message: "Payment initiated",
+      data: payment
+    });
   } catch (error) {
     console.log(error);
     next(trycatchmidddleware(error.message));
@@ -364,6 +394,7 @@ export const createBooking = async (req, res, next) => {
     next(trycatchmidddleware(error.message));
   }
 };
+
 export const getBookingDetails = async (req, res, next) => {
   const { id } = req.params;
 
@@ -428,6 +459,7 @@ export const createProfile = async (req, res, next) => {
     next(err);
   }
 };
+
 export const updateuser = async (req, res, next) => {
   try {
     const { Username, email, Phonenumber, Profileimg } = req.body;
@@ -456,6 +488,7 @@ export const updateuser = async (req, res, next) => {
     return next(error);
   }
 };
+
 export const deleteAccount = async (req, res, next) => {
   const { id } = req.params;
 
