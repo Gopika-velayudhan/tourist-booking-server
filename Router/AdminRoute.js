@@ -10,6 +10,7 @@ import {
   deletepackage,
   SinglePackage,
   updatepackages,
+  getAllBookings
 } from "../Contoller/Admincontroler.js";
 import verifytoken1 from "../Middleware/Adminauth.js";
 
@@ -25,6 +26,8 @@ router
   .get("/packages/:id", SinglePackage)
   .put("/packages/:id", updatepackages)
   .delete("/packages/:id", deletepackage)
-  .patch("/users/:id", blockuser);
+  .patch("/users/:id", blockuser)
+  .get("/bookings",getAllBookings)
+  
 
 export default router;

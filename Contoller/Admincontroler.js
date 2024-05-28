@@ -1,13 +1,13 @@
 import Package from "../Model/PackageSchema.js";
 import User from "../Model/UserSchema.js";
 import Jwt from "jsonwebtoken";
-
+import Booking from "../Model/BookingSchema.js";
 import { trycatchmidddleware } from "../Middleware/trycatch.js";
 import { joiPackageSchema } from "../Model/validateSchema.js";
 
 export const adminLogin = async (req, res, next) => {
   const { email, password } = req.body;
-  console.log(req.body);
+
   try {
     if (
       email === process.env.ADMIN_EMAIL &&
@@ -197,5 +197,23 @@ export const blockuser = async (req, res, next) => {
       .json({ message: `User ${actionMessage} successfully`, user });
   } catch (err) {
     next(err);
+  }
+};
+export const getAllBookings = async (req, res, next) => {
+  try {
+    const bookings = await Booking.find().populate("user package");
+
+    if (bookings.length === 0) {
+      return next(trycatchmidddleware(404, "No bookings found"));
+    }
+
+    res.status(200).json({
+      status: "success",
+      message: "All bookings fetched successfully",
+      data: bookings,
+    });
+  } catch (error) {
+    console.log(error);
+    next(trycatchmidddleware(error.message));
   }
 };

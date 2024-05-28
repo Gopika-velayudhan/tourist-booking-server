@@ -20,10 +20,23 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 cloudinary.config({
-  cloud_name: process.env.Cloud_Name,
-  api_key: process.env.Api_Key,
-  api_secret: process.env.Api_Secret,
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.API_KEY,
+  api_secret: process.env.API_SECRET,
 });
+
+const uploadToCloudinary = async (filePath, retries = 3) => {
+  try {
+    const result = await cloudinary.uploader.upload(filePath, {
+      folder: "clone-imgs",
+    });
+    return result;
+  } catch (error) {
+    if (retries === 0) throw error;
+    console.log(`Retrying upload... Attempts left: ${retries}`);
+    return uploadToCloudinary(filePath, retries - 1);
+  }
+};
 
 const multipleImageUpload = (req, res, next) => {
   upload.array("images", 10)(req, res, async (err) => { 
@@ -35,9 +48,7 @@ const multipleImageUpload = (req, res, next) => {
 
     try {
       const promises = req.files.map(async (file) => {
-        const result = await cloudinary.uploader.upload(file.path, {
-          folder: "clone-imgs",
-        });
+        const result = await uploadToCloudinary(file.path);
 
         if (!result || !result.secure_url) {
           throw new Error("Upload to Cloudinary failed");
