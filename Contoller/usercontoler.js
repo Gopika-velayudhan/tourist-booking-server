@@ -121,34 +121,6 @@ export const userLogin = async (req, res, next) => {
   }
 };
 
-export const forgotPassword = async (req, res, next) => {
-  const { email } = req.body;
-
-  try {
-    const user = await User.findOne({ email });
-    if (!user) {
-      return next(trycatchmidddleware(404, "User not found"));
-    }
-
-    const token = jwt.sign(
-      { id: user._id },
-      process.env.PASSWORD_RESET_TOKEN_SECRET,
-      { expiresIn: '1h' }
-    );
-
-    const resetLink = `${process.env.CLIENT_URL}/reset-password/${token}`;
-
-    await sendEmailToUser(email, "Password Reset", `Click here to reset your password: ${resetLink}`);
-
-    res.status(200).json({
-      status: "success",
-      message: "Password reset link sent to your email",
-    });
-  } catch (error) {
-    next(trycatchmidddleware(500, error.message));
-  }
-};
-
 export const categoryparams = async (req, res, next) => {
   try {
     const { Category } = req.query;
@@ -351,7 +323,7 @@ export const Payment = async (req, res, next) => {
     res.json({
       status: "success",
       message: "Payment initiated",
-      data: payment
+      data: payment,
     });
   } catch (error) {
     console.log(error);
@@ -436,6 +408,29 @@ export const getAllBookings = async (req, res, next) => {
     next(trycatchmidddleware(error.message));
   }
 };
+export const deleteBooking = async (req, res, next) => {
+  const { id } = req.params;
+
+  try {
+    const booking = await Booking.findById(id);
+
+    if (!booking) {
+      return next(trycatchmidddleware(404, "Booking not found"));
+    }
+
+    booking.isDeleted = true;
+    await booking.save();
+
+    res.status(200).json({
+      status: "success",
+      message: "Booking deleted successfully",
+      data: booking,
+    });
+  } catch (error) {
+    console.log(error);
+    next(trycatchmidddleware(error.message));
+  }
+};
 
 export const createProfile = async (req, res, next) => {
   const { userId } = req.params;
@@ -470,16 +465,16 @@ export const updateuser = async (req, res, next) => {
 
     const { id } = req.params;
 
-    const updatepackage = await User.findByIdAndUpdate(
+    const update = await User.findByIdAndUpdate(
       id,
       { $set: { Username, email, Phonenumber, Profileimg } },
       { new: true }
     );
-    if (updatepackage) {
+    if (update) {
       return res.status(200).json({
         status: "success",
         message: "Successfully updated data",
-        data: updateuser,
+        data: update,
       });
     } else {
       return next(trycatchmidddleware(404, error.message));

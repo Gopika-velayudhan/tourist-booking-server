@@ -14,6 +14,7 @@ const BookingSchema = new mongoose.Schema(
     total_amount: Number,
     date: { type: String, default: () => new Date().toLocaleDateString() },
     time: { type: String, default: () => new Date().toLocaleTimeString() },
+    isDeleted: { type: Boolean, default: false }
   },
   { timestamps: true }
 );

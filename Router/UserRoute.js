@@ -16,15 +16,13 @@ import {
   createBooking,
   getBookingDetails,
   getAllBookings,
+  deleteBooking,
   updateuser,
-  deleteAccount
+  deleteAccount,
 } from "../Contoller/usercontoler.js";
 
 import uploadSingleImage from "../ImageUpload/Imageupload1.js";
 import verifyToken from "../Middleware/UserAuth.js";
-
-
-
 
 Userrouter
 
@@ -48,9 +46,8 @@ Userrouter
   .post("/bookings", createBooking)
   .get("/bookings/:id", getBookingDetails)
   .get("/bookings", getAllBookings)
-  
-  .put("/users/:id",uploadSingleImage,updateuser)
-  .delete("/users/:id",deleteAccount)
-  
+  .delete("/bookings/:id", deleteBooking)
+  .put("/users/:id", uploadSingleImage, updateuser)
+  .delete("/users/:id", deleteAccount);
 
 export default Userrouter;

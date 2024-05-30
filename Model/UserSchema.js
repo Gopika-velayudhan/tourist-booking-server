@@ -1,3 +1,4 @@
+
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
@@ -11,6 +12,7 @@ const userSchema = new mongoose.Schema(
     isActive: { type: Boolean, default: true },
     isBlocked: { type: Boolean, default: false },
     reviews: [{ type: mongoose.Schema.ObjectId, ref: "Review" }],
+    
   },
   { timestamps: true }
 );

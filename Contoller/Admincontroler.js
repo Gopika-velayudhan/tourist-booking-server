@@ -202,6 +202,7 @@ export const blockuser = async (req, res, next) => {
 export const getAllBookings = async (req, res, next) => {
   try {
     const bookings = await Booking.find().populate("user package");
+    const allBookingCount = await Booking.countDocuments();
 
     if (bookings.length === 0) {
       return next(trycatchmidddleware(404, "No bookings found"));
@@ -211,6 +212,7 @@ export const getAllBookings = async (req, res, next) => {
       status: "success",
       message: "All bookings fetched successfully",
       data: bookings,
+      datacount:allBookingCount
     });
   } catch (error) {
     console.log(error);
