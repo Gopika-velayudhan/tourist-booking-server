@@ -179,30 +179,34 @@ export const packagebyid = async (req, res, next) => {
 };
 export const Wishlist = async (req, res, next) => {
   const userid = req.params.id;
+  if (!userid) {
+    return next(trycatchmidddleware(404, "user not found"));
+  }
+
   try {
-    if (!userid) {
-      next(trycatchmidddleware(404, "user not found"));
-    }
     const { packageid } = req.body;
     const user = await User.findById(userid);
     if (!user) {
-      next(trycatchmidddleware(404, "package not found"));
+      return next(trycatchmidddleware(404, "user not found"));
     }
+
     const findpack = await User.findOne({ _id: userid, wishlist: packageid });
     if (findpack) {
-      next(trycatchmidddleware(404, "the package already exist in wishlist"));
+      return next(trycatchmidddleware(404, "the package already exists in wishlist"));
     }
+
     const updatewishlist = await User.updateOne(
       { _id: userid },
       { $push: { wishlist: packageid } }
     );
-    res.status(201).send({
+
+    return res.status(201).send({
       status: "Success",
       message: "successfully added package in wishlist",
       data: updatewishlist,
     });
   } catch (err) {
-    next(err);
+    return next(err);
   }
 };
 
@@ -238,24 +242,32 @@ export const showwishlist = async (req, res, next) => {
 
 export const deletewishlist = async (req, res, next) => {
   const userid = req.params.id;
+  if (!userid) {
+    return next(trycatchmidddleware(404, "user not found"));
+  }
+
   try {
     const { packageid } = req.body;
     if (!packageid) {
-      next(trycatchmidddleware(404, "package not found"));
+      return next(trycatchmidddleware(404, "package not found"));
     }
+
     const user = await User.findById(userid);
     if (!user) {
-      return next(trycatchmidddleware(404, "user not fount"));
+      return next(trycatchmidddleware(404, "user not found"));
     }
+
     await User.updateOne({ _id: userid }, { $pull: { wishlist: packageid } });
-    res.status(200).json({
+
+    return res.status(200).json({
       status: "success",
-      message: "successfully delted package",
+      message: "successfully deleted package",
     });
   } catch (err) {
-    next(err);
+    return next(err);
   }
 };
+
 
 export const searchPackages = async (req, res, next) => {
   try {
