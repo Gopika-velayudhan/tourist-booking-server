@@ -402,24 +402,7 @@ export const getBookingDetails = async (req, res, next) => {
   }
 };
 
-export const getAllBookings = async (req, res, next) => {
-  try {
-    const bookings = await Booking.find().populate("user package");
 
-    if (bookings.length === 0) {
-      return next(trycatchmidddleware(404, "No bookings found"));
-    }
-
-    res.status(200).json({
-      status: "success",
-      message: "All bookings fetched successfully",
-      data: bookings,
-    });
-  } catch (error) {
-    console.log(error);
-    next(trycatchmidddleware(error.message));
-  }
-};
 export const deleteBooking = async (req, res, next) => {
   const { id } = req.params;
 

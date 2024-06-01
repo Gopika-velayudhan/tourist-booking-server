@@ -94,11 +94,14 @@ export const createPackacge = async (req, res, next) => {
 export const viewallpackage = async (req, res, next) => {
   try {
     const packages = await Package.find();
+    const allpackagecount = await Package.countDocuments();
+
     if (packages) {
       res.status(200).json({
         status: "Success",
         message: "successfully package fetched",
         data: packages,
+        datacount:allpackagecount
       });
     } else {
       a;
