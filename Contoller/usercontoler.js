@@ -214,6 +214,7 @@ export const showwishlist = async (req, res, next) => {
   const userid = req.params.id;
   try {
     const user = await User.findById(userid);
+
     if (!user) {
       next(trycatchmidddleware(404, "user not found"));
     }
@@ -227,12 +228,15 @@ export const showwishlist = async (req, res, next) => {
       });
     }
 
-    const wishpack = await Package.find({ _id: { $in: wishlistpack } });
+    const wishpack = await Package.find({ _id: { $in: wishlistpack } })
+    const allwishCount = await Package.countDocuments();
+
 
     res.status(200).json({
       status: "success",
       message: "Wishlist packages fetched successfully",
       data: wishpack,
+      datacount:allwishCount
     });
   } catch (err) {
     console.error("Error fetching wishlist:", err);
