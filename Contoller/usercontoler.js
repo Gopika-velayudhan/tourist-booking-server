@@ -216,33 +216,35 @@ export const showwishlist = async (req, res, next) => {
     const user = await User.findById(userid);
 
     if (!user) {
-      next(trycatchmidddleware(404, "user not found"));
+      return next(trycatchmidddleware(404, "User not found"));
     }
 
     const wishlistpack = user.wishlist;
-    if (wishlistpack.length === 0) {
+    const allwishCount = wishlistpack.length;
+
+    if (allwishCount === 0) {
       return res.status(200).json({
         status: "success",
         message: "Wishlist is empty",
         data: [],
+        datacount: allwishCount,
       });
     }
 
-    const wishpack = await Package.find({ _id: { $in: wishlistpack } })
-    const allwishCount = await Package.countDocuments();
-
+    const wishpack = await Package.find({ _id: { $in: wishlistpack } });
 
     res.status(200).json({
       status: "success",
       message: "Wishlist packages fetched successfully",
       data: wishpack,
-      datacount:allwishCount
+      datacount: allwishCount,
     });
   } catch (err) {
     console.error("Error fetching wishlist:", err);
     next(err);
   }
 };
+
 
 export const deletewishlist = async (req, res, next) => {
   const userid = req.params.id;

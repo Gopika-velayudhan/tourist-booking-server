@@ -16,6 +16,7 @@ import {
   deleteBooking,
   updateuser,
   deleteAccount,
+  viewallpackage1
 } from '../Contoller/usercontoler.js';
 import { sendEmail } from '../nodemailer/Nodemailer1.js'
 import uploadSingleImage from "../ImageUpload/Imageupload1.js";
@@ -40,6 +41,7 @@ Userrouter
   .delete("/bookings/:id", deleteBooking)
   .put("/users/:id", uploadSingleImage, updateuser)
   .delete("/users/:id", deleteAccount)
-  .post("/send-email", sendEmail); 
+  .post("/send-email", sendEmail)
+  .get("/getpackages",viewallpackage1)
 
 export default Userrouter;
