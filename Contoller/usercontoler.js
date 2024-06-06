@@ -7,84 +7,79 @@ import { trycatchmidddleware } from "../Middleware/trycatch.js";
 import { joiUserSchema } from "../Model/validateSchema.js";
 import Package from "../Model/PackageSchema.js";
 import Razorpay from "razorpay";
-import { sendEmailToUser } from "../nodemailer/Nodemailer.js";
+import { sendEmailToUser } from "../utility/Nodemailer.js";
+import { sendOtp } from "../utility/Verification.js";
+import { generateOTP } from "../utility/Genarateotp.js";
 import dotenv from "dotenv";
 dotenv.config();
 
 export const userRegister = async (req, res, next) => {
   try {
     const { value, error } = joiUserSchema.validate(req.body);
-
     if (error) {
       return res.status(400).json({
         status: "error",
         message: error.details[0].message,
       });
     }
-
     const { Username, email, Phonenumber, password } = value;
 
-    console.log(email);
-
-    const existingUser = await User.findOne({ Username: Username });
+    const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({
         status: "error",
-        message: "Username already taken!",
+        message: "Email already exists",
       });
     }
 
-    // Send OTP
-    // try {
-    //   await sendOTP(req, res);
-    // } catch (error) {
-    //   return next(error);
-    // }
+    const otp = generateOTP();
 
-    //Hash password
+    await sendOtp(email, otp);
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = new User({
-      Username: Username,
-      email: email,
-      Phonenumber: Phonenumber,
+      Username,
+      email,
+      Phonenumber,
       password: hashedPassword,
+      otp,
     });
-    console.log(newUser);
-
     await newUser.save();
 
-    return res.status(201).json({
+    res.status(200).json({
       status: "success",
-      message: "User registered successfully",
+      message: "User registered successfully. OTP sent to email.",
     });
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({
-      status: "error",
-      message: "An unexpected error occurred",
-    });
+    console.error("Error registering user:", error);
+    res.status(500).json({ error: "Failed to register user" });
   }
 };
-// export const sendOTP = async({email},res)=>{
-//   try{
-//     const transporter = nodemailer.createTransport({
-//       service:'gmail',
-//       host:'smtp.gmail.com',
-//       port:465,
-//       secure:true,
-//       auth:{
-//         user:process.env.ADMIN_EMAIL,
-//         pass:'nodemailer'
 
-//       }
-//     });
-//     otp = `${Math.floor(1000+Math.random()*9000)}`;
-//     const maailOptions = {
+export const verifyOTP = async (req, res) => {
+  const { email, otp } = req.body;
 
-//     }
-//   }
-// }
+  try {
+    const user = await User.findOne({ email, otp });
+    if (!user) {
+      return res.status(400).json({
+        status: "error",
+        message: "Invalid OTP",
+      });
+    }
+
+    user.isVerified = true;
+    await user.save();
+
+    res.status(200).json({
+      status: "success",
+      message: "OTP verified successfully",
+    });
+  } catch (error) {
+    console.error("Error verifying OTP:", error);
+    res.status(500).json({ error: "Failed to verify OTP" });
+  }
+};
 
 export const userLogin = async (req, res, next) => {
   const { value, error } = joiUserSchema.validate(req.body);
@@ -192,7 +187,9 @@ export const Wishlist = async (req, res, next) => {
 
     const findpack = await User.findOne({ _id: userid, wishlist: packageid });
     if (findpack) {
-      return next(trycatchmidddleware(404, "the package already exists in wishlist"));
+      return next(
+        trycatchmidddleware(404, "the package already exists in wishlist")
+      );
     }
 
     const updatewishlist = await User.updateOne(
@@ -245,7 +242,6 @@ export const showwishlist = async (req, res, next) => {
   }
 };
 
-
 export const deletewishlist = async (req, res, next) => {
   const userid = req.params.id;
   if (!userid) {
@@ -273,7 +269,6 @@ export const deletewishlist = async (req, res, next) => {
     return next(err);
   }
 };
-
 
 export const searchPackages = async (req, res, next) => {
   try {
@@ -407,7 +402,6 @@ export const getBookingDetails = async (req, res, next) => {
     next(trycatchmidddleware(error.message));
   }
 };
-
 
 export const deleteBooking = async (req, res, next) => {
   const { id } = req.params;

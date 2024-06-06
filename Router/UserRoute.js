@@ -16,9 +16,10 @@ import {
   deleteBooking,
   updateuser,
   deleteAccount,
-  viewallpackage1
+  viewallpackage1,
+  verifyOTP
 } from '../Contoller/usercontoler.js';
-import { sendEmail } from '../nodemailer/Nodemailer1.js'
+import { sendEmail } from '../utility/Nodemailer1.js'
 import uploadSingleImage from "../ImageUpload/Imageupload1.js";
 import verifyToken from "../Middleware/UserAuth.js";
 
@@ -26,6 +27,7 @@ const Userrouter = express.Router();
 
 Userrouter
   .post("/userRegister", userRegister)
+  .post("/verify-otp",verifyOTP)
   .post("/login", userLogin)
   .get("/packages", categoryparams)
   .get("/searches", searchPackages)
@@ -43,5 +45,7 @@ Userrouter
   .delete("/users/:id", deleteAccount)
   .post("/send-email", sendEmail)
   .get("/getpackages",viewallpackage1)
+  
+
 
 export default Userrouter;
