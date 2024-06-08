@@ -10,9 +10,14 @@ import {
   deletepackage,
   SinglePackage,
   updatepackages,
-  getAllBookings
+  getAllBookings,
 } from "../Contoller/Admincontroler.js";
-import {createCategory,getCategories,getCategoryById,updateCategory,deleteCategory} from "../Contoller/CategoryController.js"
+import {
+  createCategory,
+  getCategories,
+  updateCategory,
+  deleteCategory,
+} from "../Contoller/CategoryController.js";
 import verifytoken1 from "../Middleware/Adminauth.js";
 
 import imageUpload from "../ImageUpload/Imageupload.js";
@@ -28,11 +33,11 @@ router
   .put("/packages/:id", updatepackages)
   .delete("/packages/:id", deletepackage)
   .patch("/users/:id", blockuser)
-  .get("/bookings",getAllBookings)
-  .post("/categories",createCategory)
-  .get("/categories",getCategories)
-  .get("/categories/:id",getCategoryById)
-  .put("/categories/:id",updateCategory)
-  .delete("/categories/:id",deleteCategory)
+  .get("/bookings", getAllBookings)
+  .post("/categories", createCategory)
+  .get("/categories", getCategories)
+
+  .put("/categories/:id", updateCategory)
+  .delete("/categories/:id", deleteCategory);
 
 export default router;

@@ -322,27 +322,45 @@ export const singleUser = async (req, res, next) => {
   }
 };
 
+
+
 export const Payment = async (req, res, next) => {
   const razorpay = new Razorpay({
     key_id: process.env.RAZORPAY_KEY_ID,
     key_secret: process.env.RAZORPAY_SECRET,
   });
 
-  const { amount, currency, receipt } = req.body;
+  
+
+  const { email, amount, currency, receipt } = req.body;
+  
+
+  if (!email || !amount || !currency || !receipt) {
+    console.error("Missing parameters in request body", req.body);
+    return res.status(400).json({
+      status: "error",
+      message: "Missing required parameters",
+    });
+  }
 
   try {
+    
     const payment = await razorpay.orders.create({ amount, currency, receipt });
-    await sendEmailToUser("gopikakv627@gmail.com", amount, currency, receipt);
+    
+    
+    await sendEmailToUser(amount, currency, receipt, email);
+
     res.json({
       status: "success",
       message: "Payment initiated",
       data: payment,
     });
   } catch (error) {
-    console.log(error);
-    next(trycatchmidddleware(error.message));
+    console.error("Error in Payment processing:", error);
+    next(new Error(error.message));
   }
 };
+
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
@@ -376,9 +394,10 @@ export const createBooking = async (req, res, next) => {
     });
   } catch (error) {
     console.error(error);
-    next(trycatchmidddleware(error.message));
+    next(new Error(error.message));
   }
 };
+
 
 export const getBookingDetails = async (req, res, next) => {
   const { id } = req.params;

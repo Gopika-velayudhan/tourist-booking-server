@@ -23,19 +23,7 @@ export const getCategories = async (req, res,next) => {
     }
 };
 
-export const getCategoryById = async (req, res,next) => {
-    const { id } = req.params;
-    try {
-        const category = await Category.findById(id);
-        if (category) {
-            res.status(200).json(category);
-        } else {
-            res.status(404).json({ message: 'Category not found' });
-        }
-    } catch (error) {
-        next(error)
-    }
-};
+
 export const updateCategory = async (req, res,next) => {
     const { id } = req.params;
     const { category } = req.body;
