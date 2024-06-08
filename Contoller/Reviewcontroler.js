@@ -5,6 +5,8 @@ import { joiReviewSchema } from "../Model/validateSchema.js";
 import { trycatchmidddleware } from "../Middleware/trycatch.js";
 
 
+
+
 export const addReview = async (req, res, next) => {
   const { value, error } = joiReviewSchema.validate(req.body);
 
@@ -15,7 +17,7 @@ export const addReview = async (req, res, next) => {
   const { user, package: packageId, rating, reviewText } = value;
 
   try {
-    const existingUser = await User.findById(user);
+    const existingUser = await User.findById(user).populate('bookings');
     const existingPackage = await Package.findById(packageId);
 
     if (!existingUser) {
@@ -24,6 +26,14 @@ export const addReview = async (req, res, next) => {
 
     if (!existingPackage) {
       return next(trycatchmidddleware(404, "Package not found"));
+    }
+
+    const hasBookedPackage = existingUser.bookings.some(
+      booking => booking.package.toString() === packageId
+    );
+
+    if (!hasBookedPackage) {
+      return next(trycatchmidddleware(403, "You can only review a package you have booked"));
     }
 
     const newReview = new Review({

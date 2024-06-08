@@ -23,7 +23,7 @@ export const sendEmailToUser = async (amount, currency, receipt, email) => {
   };
 
   try {
-    console.log("Sending email to:", email);
+    
     await transporter.sendMail(mailOptions);
     
   } catch (err) {

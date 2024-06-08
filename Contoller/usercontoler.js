@@ -2,7 +2,7 @@ import User from "../Model/UserSchema.js";
 import Booking from "../Model/BookingSchema.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-// import { sendOTP } from "../Twilio/Otp verification.js";
+
 import { trycatchmidddleware } from "../Middleware/trycatch.js";
 import { joiUserSchema } from "../Model/validateSchema.js";
 import Package from "../Model/PackageSchema.js";
