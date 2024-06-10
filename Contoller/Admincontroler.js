@@ -85,12 +85,14 @@ export const createPackacge = async (req, res, next) => {
     res.status(201).json({
       status: "success",
       message: "data created successfully",
+      packageId: newpack._id,  
       data: newpack,
     });
   } catch (err) {
     next(err);
   }
 };
+
 export const viewallpackage = async (req, res, next) => {
   try {
     const packages = await Package.find();

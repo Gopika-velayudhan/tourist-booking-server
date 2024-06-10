@@ -1,11 +1,9 @@
+import  {joiReviewSchema}  from "../Model/validateSchema.js";
 import User from "../Model/UserSchema.js";
 import Package from "../Model/PackageSchema.js";
-import Review from "../Model/ReviewSchema.js";
-import { joiReviewSchema } from "../Model/validateSchema.js";
+import Booking from "../Model/BookingSchema.js";
+import Review from "../Model/Reviewschema.js";
 import { trycatchmidddleware } from "../Middleware/trycatch.js";
-
-
-
 
 export const addReview = async (req, res, next) => {
   const { value, error } = joiReviewSchema.validate(req.body);
@@ -17,7 +15,7 @@ export const addReview = async (req, res, next) => {
   const { user, package: packageId, rating, reviewText } = value;
 
   try {
-    const existingUser = await User.findById(user).populate('bookings');
+    const existingUser = await User.findById(user)
     const existingPackage = await Package.findById(packageId);
 
     if (!existingUser) {
@@ -28,13 +26,7 @@ export const addReview = async (req, res, next) => {
       return next(trycatchmidddleware(404, "Package not found"));
     }
 
-    const hasBookedPackage = existingUser.bookings.some(
-      booking => booking.package.toString() === packageId
-    );
-
-    if (!hasBookedPackage) {
-      return next(trycatchmidddleware(403, "You can only review a package you have booked"));
-    }
+    
 
     const newReview = new Review({
       user,
@@ -62,93 +54,49 @@ export const addReview = async (req, res, next) => {
   }
 };
 
-export const updateReview = async (req, res, next) => {
-  const { value, error } = joiReviewSchema.validate(req.body);
 
-  if (error) {
-    return next(trycatchmidddleware(400, error.message));
-  }
-
-  const { reviewId } = req.params;
-  const { user, package: packageId, rating, reviewText } = value;
-
-  try {
-    const review = await Review.findById(reviewId);
-
-    if (!review) {
-      return next(trycatchmidddleware(404, "Review not found"));
-    }
-
-    if (review.user.toString() !== user) {
-      return next(
-        trycatchmidddleware(403, "User not authorized to update this review")
-      );
-    }
-
-    review.package = packageId;
-    review.rating = rating;
-    review.reviewText = reviewText;
-
-    await review.save();
-
-    return res.status(200).json({
-      status: "success",
-      message: "Review updated successfully",
-      data: review,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-export const getPackageReviews = async (req, res, next) => {
+export const getPackageReviews = async (req, res) => {
   const { packageId } = req.params;
 
   try {
-    const reviews = await Review.find({ package: packageId }).populate(
-      "user",
-      "Username email Profileimg "
+    
+    const reviewCount = await Review.countDocuments({ package: packageId });
+
+    
+    const reviewDocs = await Review.find({ package: packageId }).populate(
+      'user',
+      'Username Profileimg email'
     );
 
-    if (!reviews || reviews.length === 0) {
-      return res.status(404).json({
-        status: "error",
-        message: "No reviews found for this package",
+    if (!reviewDocs || reviewDocs.length === 0) {
+      return res.status(200).json({
+        status: 'success',
+        message: 'No reviews for this package',
+        data: [],
+        dataCount: reviewCount,
+        overallRating: 0,
       });
     }
-
-    return res.status(200).json({
-      status: "success",
-      message: "Reviews fetched successfully",
-      data: reviews,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-export const deleteReview = async (req, res, next) => {
-  const { reviewId } = req.params;
-
-  try {
-    
-    const review = await Review.findById(reviewId);
-    if (!review) {
-      return res.status(404).json({
-        status: "error",
-        message: "Review not found",
-      });
-    }
-
-    await Review.deleteOne({ _id: reviewId });
 
   
+    const totalRating = reviewDocs.reduce((acc, review) => acc + review.rating, 0);
+    const overallRating = totalRating / reviewCount;
+
+
+    await Package.findByIdAndUpdate(packageId, { overallRating });
 
     return res.status(200).json({
-      status: "success",
-      message: "Review deleted successfully",
+      status: 'success',
+      message: 'Fetched reviews of this property',
+      data: reviewDocs,
+      dataCount: reviewCount,
+      overallRating: overallRating.toFixed(1),
     });
   } catch (error) {
-    next(error);
+    console.error('Error fetching reviews:', error);
+    return res.status(500).json({
+      status: 'error',
+      message: 'Internal server error',
+    });
   }
 };
