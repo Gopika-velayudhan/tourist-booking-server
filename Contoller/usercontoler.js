@@ -11,6 +11,7 @@ import { sendEmailToUser } from "../utility/Nodemailer.js";
 import { sendOtp } from "../utility/Verification.js";
 import { generateOTP } from "../utility/Genarateotp.js";
 import dotenv from "dotenv";
+import { joiLoginSchema } from '../Model/validateSchema.js';
 dotenv.config();
 
 export const userRegister = async (req, res, next) => {
@@ -82,10 +83,10 @@ export const verifyOTP = async (req, res) => {
 };
 
 export const userLogin = async (req, res, next) => {
-  const { value, error } = joiUserSchema.validate(req.body);
+  const { value, error } = joiLoginSchema.validate(req.body);
 
   if (error) {
-    next(trycatchmidddleware(400, error.message));
+    return next(trycatchmidddleware(400, error.message)); 
   }
 
   const { email, password } = value;
@@ -98,7 +99,7 @@ export const userLogin = async (req, res, next) => {
     if (validUser.isBlocked) {
       return res.status(403).json({
         status: "error",
-        message: "user is blocked",
+        message: "User is blocked",
       });
     }
     const validPassword = await bcrypt.compare(password, validUser.password);
@@ -108,13 +109,13 @@ export const userLogin = async (req, res, next) => {
     const token = jwt.sign(
       { id: validUser._id },
       process.env.User_ACCESS_ToKEN_SECRT
-      // { expiresIn: 86400 }
     );
     res.status(200).json({ token, user: validUser });
   } catch (error) {
     next(error);
   }
 };
+
 
 export const categoryparams = async (req, res, next) => {
   try {

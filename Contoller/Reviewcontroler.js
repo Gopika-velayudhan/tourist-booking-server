@@ -59,10 +59,8 @@ export const getPackageReviews = async (req, res) => {
   const { packageId } = req.params;
 
   try {
-    
     const reviewCount = await Review.countDocuments({ package: packageId });
 
-    
     const reviewDocs = await Review.find({ package: packageId }).populate(
       'user',
       'Username Profileimg email'
@@ -78,10 +76,8 @@ export const getPackageReviews = async (req, res) => {
       });
     }
 
-  
     const totalRating = reviewDocs.reduce((acc, review) => acc + review.rating, 0);
     const overallRating = totalRating / reviewCount;
-
 
     await Package.findByIdAndUpdate(packageId, { overallRating });
 

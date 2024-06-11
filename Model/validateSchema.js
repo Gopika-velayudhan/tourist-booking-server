@@ -3,7 +3,7 @@ import Joi from "joi";
 
 
 export const joiUserSchema = Joi.object({
-  Username: Joi.string().required(),
+  Username: Joi.string(),
   email: Joi.string().email().required(),
   Phonenumber: Joi.number().integer().min(1000000000).required(),
   password: Joi.string().required(),
@@ -15,6 +15,12 @@ export const joiUserSchema = Joi.object({
   isBlocked: Joi.boolean().optional().default(false),
   reviews: Joi.array().items(Joi.string().hex().length(24)).optional(),
   isVerified: Joi.boolean().optional().default(false),
+});
+
+
+export const joiLoginSchema = Joi.object({
+  email: Joi.string().email().required(),
+  password: Joi.string().required(),
 });
 
 
