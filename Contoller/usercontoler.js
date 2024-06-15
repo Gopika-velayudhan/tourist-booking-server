@@ -469,11 +469,6 @@ export const createProfile = async (req, res, next) => {
 export const updateuser = async (req, res, next) => {
   try {
     const { Username, email, Phonenumber, Profileimg } = req.body;
-
-    // if (error) {
-    //   next(trycatchmidddleware(400, error.message));
-    // }
-
     const { id } = req.params;
 
     const update = await User.findByIdAndUpdate(
@@ -481,6 +476,7 @@ export const updateuser = async (req, res, next) => {
       { $set: { Username, email, Phonenumber, Profileimg } },
       { new: true }
     );
+
     if (update) {
       return res.status(200).json({
         status: "success",
@@ -488,7 +484,7 @@ export const updateuser = async (req, res, next) => {
         data: update,
       });
     } else {
-      return next(trycatchmidddleware(404, error.message));
+      return next(trycatchmidddleware(404, 'User not found'));
     }
   } catch (error) {
     return next(error);

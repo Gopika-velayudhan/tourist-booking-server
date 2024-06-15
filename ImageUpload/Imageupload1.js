@@ -13,11 +13,23 @@ const __dirname = path.dirname(__filename);
 const storage = multer.diskStorage({
   destination: path.join(__dirname, 'uploads'),
   filename: (req, file, cb) => {
-    cb(null, Date.now() + file.originalname); 
+    cb(null, Date.now() + path.extname(file.originalname)); 
   },
 });
 
-const upload = multer({ storage });
+const upload = multer({ 
+  storage,
+  fileFilter: (req, file, cb) => {
+    const fileTypes = /jpeg|jpg|png|gif/;
+    const extname = fileTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = fileTypes.test(file.mimetype);
+    if (mimetype && extname) {
+      return cb(null, true);
+    } else {
+      cb(new Error('Only images are allowed'));
+    }
+  }
+});
 
 cloudinary.config({
   cloud_name: process.env.Cloud_Name,
@@ -28,9 +40,7 @@ cloudinary.config({
 const uploadSingleImage = (req, res, next) => {
   upload.single('Profileimg')(req, res, async (err) => { 
     if (err) {
-      return res.status(400).json({
-        error: err.message,
-      });
+      return res.status(400).json({ error: err.message });
     }
 
     if (req.file) {
@@ -52,9 +62,7 @@ const uploadSingleImage = (req, res, next) => {
         req.body.Profileimg = result.secure_url;
       } catch (error) {
         console.error('Error uploading file to Cloudinary:', error);
-        return res.status(500).json({
-          message: 'Error uploading file to Cloudinary',
-        });
+        return res.status(500).json({ message: 'Error uploading file to Cloudinary' });
       }
     }
 
