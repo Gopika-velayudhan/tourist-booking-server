@@ -1,15 +1,18 @@
 import Joi from "joi";
 
-
-
 export const joiUserSchema = Joi.object({
   Username: Joi.string(),
   email: Joi.string().email().required(),
   Phonenumber: Joi.number().integer().min(1000000000).required(),
   password: Joi.string().required(),
-  Profileimg: Joi.string().uri().optional().default("https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png"),
-  otp: Joi.string().optional(),
-  wishlist: Joi.array().items(Joi.string().hex().length(24)).optional(), 
+  Profileimg: Joi.string()
+    .uri()
+    .optional()
+    .default(
+      "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png"
+    ),
+
+  wishlist: Joi.array().items(Joi.string().hex().length(24)).optional(),
   bookings: Joi.array().items(Joi.string().hex().length(24)).optional(),
   isActive: Joi.boolean().optional().default(true),
   isBlocked: Joi.boolean().optional().default(false),
@@ -17,12 +20,10 @@ export const joiUserSchema = Joi.object({
   isVerified: Joi.boolean().optional().default(false),
 });
 
-
 export const joiLoginSchema = Joi.object({
   email: Joi.string().email().required(),
   password: Joi.string().required(),
 });
-
 
 export const joiPackageSchema = Joi.object({
   Destination: Joi.string().required(),

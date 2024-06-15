@@ -6,13 +6,13 @@ export const sendEmailToUser = async (amount, currency, receipt, email) => {
     port: 465,
     secure: true,
     auth: {
-      user: process.env.APP_EMAIL,
-      pass: process.env.APP_PASSWORD,
+      user: process.env.App_Email,
+      pass: process.env.App_Password,
     },
   });
 
   const mailOptions = {
-    from: process.env.APP_EMAIL,
+    from: process.env.App_Email,
     to: email,
     subject: "Booking Confirmation",
     html: `<h4>Dear Customer,</h4>
