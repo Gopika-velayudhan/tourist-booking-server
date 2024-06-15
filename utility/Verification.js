@@ -1,30 +1,29 @@
 import nodemailer from "nodemailer";
+import crypto from "crypto";
 import dotenv from "dotenv";
 
 dotenv.config();
 
-export const sendOtp = async (email, otp) => {
-  try {
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.App_Email,
-        pass: process.env.App_Password,
-      },
-    });
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.App_Email,
+    pass: process.env.App_Password,
+  },
+});
 
-    const mailOptions = {
-      from: process.env.App_Email,
-      to: email,
-      subject: "Your OTP for Verification",
-      text: `Your OTP for verification is: ${otp}`,
-    };
+export const sendOTP = async (email) => {
+  const otp = crypto.randomInt(100000, 999999).toString();
 
-    const info = await transporter.sendMail(mailOptions);
-    console.log("OTP sent:", info.response);
-    return true; 
-  } catch (error) {
-    console.error("Error sending OTP:", error);
-    return false; 
-  }
+  const mailOptions = {
+    from: process.env.App_Email,
+    to: email,
+    subject: "Your OTP Code",
+    text: `Your OTP code is ${otp}`,
+    html: `<b>Your OTP code is ${otp}</b>`,
+  };
+
+  await transporter.sendMail(mailOptions);
+
+  return otp;
 };

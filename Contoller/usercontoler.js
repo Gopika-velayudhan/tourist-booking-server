@@ -2,83 +2,89 @@ import User from "../Model/UserSchema.js";
 import Booking from "../Model/BookingSchema.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-
 import { trycatchmidddleware } from "../Middleware/trycatch.js";
 import { joiUserSchema } from "../Model/validateSchema.js";
 import Package from "../Model/PackageSchema.js";
 import Razorpay from "razorpay";
 import { sendEmailToUser } from "../utility/Nodemailer.js";
-import { sendOtp } from "../utility/Verification.js";
-import { generateOTP } from "../utility/Genarateotp.js";
+
 import dotenv from "dotenv";
-import { joiLoginSchema } from '../Model/validateSchema.js';
+import { joiLoginSchema } from "../Model/validateSchema.js";
 dotenv.config();
 
+import { sendOTP } from "./../utility/Verification.js";
+
+const otpStore = new Map();
+
 export const userRegister = async (req, res, next) => {
+  const { value, error } = joiUserSchema.validate(req.body);
+  if (error) {
+    return next(trycatchmidddleware(400, "Invalid input data"));
+  }
+
+  const { Username, email, password, Phonenumber } = value;
   try {
-    const { value, error } = joiUserSchema.validate(req.body);
-    if (error) {
-      return res.status(400).json({
-        status: "error",
-        message: error.details[0].message,
-      });
-    }
-    const { Username, email, Phonenumber, password } = value;
-
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({
-        status: "error",
-        message: "Email already exists",
-      });
-    }
-
-    const otp = generateOTP();
-
-    await sendOtp(email, otp);
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const newUser = new User({
+    const existingUser = await User.findOne({ Username });
+    if (existingUser) {
+      return res.status(400).json({ error: "Username already taken." });
+    }
+
+    const existingEmail = await User.findOne({ email });
+    if (existingEmail) {
+      return res.status(400).json({ error: "Email already registered." });
+    }
+
+    const otp = await sendOTP(email);
+    otpStore.set(email, { otp, timestamp: Date.now() });
+
+    const userData = {
       Username,
       email,
       Phonenumber,
       password: hashedPassword,
-      otp,
-    });
-    await newUser.save();
+    };
+    otpStore.set(`${email}_data`, userData);
 
     res.status(200).json({
-      status: "success",
-      message: "User registered successfully. OTP sent to email.",
+      status: "Success",
+      message: "OTP sent to email. Please verify.",
     });
-  } catch (error) {
-    console.error("Error registering user:", error);
-    res.status(500).json({ error: "Failed to register user" });
+  } catch (err) {
+    console.error("Error during user registration:", err);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
 export const verifyOTP = async (req, res) => {
   const { email, otp } = req.body;
+  const storedOtpData = otpStore.get(email);
+  const userData = otpStore.get(`${email}_data`);
+
+  if (
+    !storedOtpData ||
+    storedOtpData.otp !== otp ||
+    Date.now() - storedOtpData.timestamp > 10 * 60 * 1000
+  ) {
+    return res.status(400).json({ error: "Invalid or expired OTP." });
+  }
 
   try {
-    const user = await User.findOne({ email, otp });
-    if (!user) {
-      return res.status(400).json({
-        status: "error",
-        message: "Invalid OTP",
-      });
-    }
+    const newUser = new User(userData);
+    await newUser.save();
 
-    user.isVerified = true;
-    await user.save();
+    otpStore.delete(email);
+    otpStore.delete(`${email}_data`);
 
-    res.status(200).json({
-      status: "success",
-      message: "OTP verified successfully",
+    res.status(201).json({
+      status: "Success",
+      message: "User successfully registered.",
+      data: newUser,
     });
-  } catch (error) {
-    console.error("Error verifying OTP:", error);
-    res.status(500).json({ error: "Failed to verify OTP" });
+  } catch (err) {
+    console.error("Error during OTP verification:", err);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
@@ -86,7 +92,7 @@ export const userLogin = async (req, res, next) => {
   const { value, error } = joiLoginSchema.validate(req.body);
 
   if (error) {
-    return next(trycatchmidddleware(400, error.message)); 
+    return next(trycatchmidddleware(400, error.message));
   }
 
   const { email, password } = value;
@@ -115,7 +121,6 @@ export const userLogin = async (req, res, next) => {
     next(error);
   }
 };
-
 
 export const categoryparams = async (req, res, next) => {
   try {
@@ -323,18 +328,13 @@ export const singleUser = async (req, res, next) => {
   }
 };
 
-
-
 export const Payment = async (req, res, next) => {
   const razorpay = new Razorpay({
     key_id: process.env.RAZORPAY_KEY_ID,
     key_secret: process.env.RAZORPAY_SECRET,
   });
 
-  
-
   const { email, amount, currency, receipt } = req.body;
-  
 
   if (!email || !amount || !currency || !receipt) {
     console.error("Missing parameters in request body", req.body);
@@ -345,10 +345,8 @@ export const Payment = async (req, res, next) => {
   }
 
   try {
-    
     const payment = await razorpay.orders.create({ amount, currency, receipt });
-    
-    
+
     await sendEmailToUser(amount, currency, receipt, email);
 
     res.json({
@@ -361,7 +359,6 @@ export const Payment = async (req, res, next) => {
     next(new Error(error.message));
   }
 };
-
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
@@ -398,7 +395,6 @@ export const createBooking = async (req, res, next) => {
     next(new Error(error.message));
   }
 };
-
 
 export const getBookingDetails = async (req, res, next) => {
   const { id } = req.params;
