@@ -3,21 +3,21 @@ import path from 'path';
 import multer from 'multer';
 import dotenv from 'dotenv';
 import cloudinary from 'cloudinary';
-import { fileURLToPath } from 'url'; 
+import { fileURLToPath } from 'url';
 
 dotenv.config();
 
-const __filename = fileURLToPath(import.meta.url); 
-const __dirname = path.dirname(__filename); 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const storage = multer.diskStorage({
   destination: path.join(__dirname, 'uploads'),
   filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname)); 
+    cb(null, Date.now() + path.extname(file.originalname));
   },
 });
 
-const upload = multer({ 
+const upload = multer({
   storage,
   fileFilter: (req, file, cb) => {
     const fileTypes = /jpeg|jpg|png|gif/;
@@ -28,7 +28,7 @@ const upload = multer({
     } else {
       cb(new Error('Only images are allowed'));
     }
-  }
+  },
 });
 
 cloudinary.config({
@@ -38,9 +38,13 @@ cloudinary.config({
 });
 
 const uploadSingleImage = (req, res, next) => {
-  upload.single('Profileimg')(req, res, async (err) => { 
+  upload.single('Profileimg')(req, res, async (err) => {
     if (err) {
-      return res.status(400).json({ error: err.message });
+      if (err instanceof multer.MulterError) {
+        return res.status(400).json({ error: 'Multer error: ' + err.message });
+      } else if (err) {
+        return res.status(400).json({ error: err.message });
+      }
     }
 
     if (req.file) {
