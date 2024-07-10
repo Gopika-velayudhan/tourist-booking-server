@@ -106,7 +106,7 @@ export const viewallpackage = async (req, res, next) => {
         datacount:allpackagecount
       });
     } else {
-      a;
+      
       next(trycatchmidddleware(404, "package not found"));
     }
   } catch (err) {
