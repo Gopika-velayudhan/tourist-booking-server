@@ -21,7 +21,7 @@ const app = express();
 app.use(express.json()); 
 app.use(express.urlencoded({ extended: true })); 
 app.use(cors({
-  origin:"https://tourist-booking-client-mkad.vercel.app"
+  origin:"https://tourist-booking-client.vercel.app/"
 }));
 app.use(bodyParser.json());
 
